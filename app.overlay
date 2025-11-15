@@ -1,0 +1,101 @@
+/ {
+    zephyr,user {
+        io-channels = <&adc1 1>;
+        //gpios = <&gpioc 14 GPIO_ACTIVE_HIGH>; // use this later for heater gpio
+    };
+
+    aliases {
+        pwm-led0 = &fan_pwm;
+        tach-input = &tach_input;
+        heating-output = &heating_output;
+    };
+
+    gpio_input: gpio_input {
+        compatible = "gpio-keys";
+        status = "okay";
+        tach_input: tach_ctrl_input {
+            gpios = <&gpioc 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+            label = "Tach Input";
+        };
+    };
+
+    gpio_output: gpio_output {
+        compatible = "gpio-leds";
+        status = "okay";
+        heating_output: heat_control {
+            gpios = <&gpioc 14 GPIO_ACTIVE_HIGH>;
+            label = "Heating Control Pin";
+        };
+    };
+
+    fan_pwm_node {
+        compatible = "pwm-leds";
+        status = "okay";
+        fan_pwm: fan_ctrl_pwm {
+            pwms = <&pwm1 1 PWM_USEC(500) PWM_POLARITY_NORMAL>;
+            label = "Fan Control";
+        };
+    };
+};
+
+&adc1 {
+
+
+    st,adc-prescaler = <6>;
+    #address-cells = <1>;
+    #size-cells = <0>;
+    //#io-channel-cells = <1>;
+    //st,adc-clock-source = "SYNC";
+
+    vref-mv = <3300>; //subject to change
+    //resolutions = <STM32_ADC_RES(12, 0x00) STM32_ADC_RES(10, 0x01)
+    //                    STM32_ADC_RES(8, 0x02)  STM32_ADC_RES(6, 0x03)>;
+
+    //sampling-times = <3 15 28 56 84 112 144 480>;
+   // st,adc-sequencer = "programmable";            
+   // st,adc-oversampler = "none";                    
+    //st,adc-internal-regulator = "none";             
+
+    pinctrl-0 = <&adc1_in1_pa1>;
+    pinctrl-names = "default";
+    status = "okay";
+    
+    channel@1 {
+        reg = <1>;  // ADC channel 1 
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
+};
+
+
+
+
+
+// Timer 1 for fan pwm
+&timers1 {
+    status = "okay";
+    st,prescaler = <8399>;  
+    
+    pwm1: pwm1 {
+        compatible = "st,stm32-pwm";
+        status = "okay";
+        pinctrl-0 = <&tim1_ch1_pa8>; // TIM1_CH1 → PA8
+        pinctrl-names = "default";
+        #pwm-cells = <3>; 
+    };
+};
+
+&spi1 {
+    status = "disabled";
+    pinctrl-0 = <&spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pa7>;
+    pinctrl-names = "default";
+    cs-gpios = <&gpioa 4 GPIO_ACTIVE_LOW>;
+    
+    drv8434s_test: drv8434s@0 {
+        compatible = "spi-device";
+        reg = <0>;
+        spi-max-frequency = <1000000>;
+    };
+};
