@@ -1,5 +1,9 @@
 #include <zephyr/kernel.h>
-#include "daisy_chained.h"
+#include "daisy_chain.h"
+
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include <zephyr/sys/util.h>
 
 static struct drv8434s_chain motor_chain;
 

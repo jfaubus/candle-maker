@@ -1,25 +1,38 @@
 #include "daisy_chain.h"
 
+
 int drv8434s_chain_init(struct drv8434s_chain *chain)
 {
+
     // Get SPI device
     chain->spi_dev = DEVICE_DT_GET(DT_NODELABEL(spi1));
     if (!device_is_ready(chain->spi_dev)) {
         printk("SPI device not ready\n");
-        return -1;  // error code
+        return -1;
     }
+
+    // Create SPI config with CS
+    struct spi_config cfg = {
+        .frequency = 1000000,
+        .operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPHA | SPI_OP_MODE_MASTER,
+        .slave = 0,
+        .cs = {
+        .gpio = SPI_CS_GPIOS_DT_SPEC_GET(DT_NODELABEL(drv8434s_test)),
+        .delay = 0,
+    },
+    };
     
-    // Configure SPI - Mode 3 (CPOL=1, CPHA=1)
-    //(chain*).spi_cfg
-    chain->spi_cfg.frequency = 1000000;  // Start with 1 MHz
-    chain->spi_cfg.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB |
-                               SPI_MODE_CPOL | SPI_MODE_CPHA;
-    chain->spi_cfg.slave = 0;
-    chain->spi_cfg.cs = NULL;
+    // Copy to chain
+    chain->spi_cfg = cfg;
     
     printk("DRV8434S chain initialized\n");
     return 0;
 }
+
+
+
+
+
 
 // this function works for writing to 1 register on 1motor driver
 int drv8434s_write_register(struct drv8434s_chain *chain, uint8_t device_num, 
@@ -73,26 +86,30 @@ int drv8434s_read_register(struct drv8434s_chain *chain, uint8_t device_num,
                             uint8_t reg_addr, uint8_t *data)
 {
     if (device_num < 1 || device_num > NUM_DEVICES || data == NULL) {
-        return -1;  // Simple error code
+        return -1;  // error code
     }
     
     uint8_t tx_buf[FRAME_SIZE] = {0};
     uint8_t rx_buf[FRAME_SIZE] = {0};
     int ret;
     
-    // Transaction 1: Request the read
+    // Transaction 1: Request the read (you have to write twice for spi: one write to tell the driver what register you want to read from, one write to get the data back (can send garbage data))
+    // same for write and read
     tx_buf[0] = HDR1_BASE | NUM_DEVICES;
     tx_buf[1] = HDR2_BASE;
     
+    // same for writing and reading
     int addr_idx = 2 + (NUM_DEVICES - device_num);
+    // same as writing but make bit 6 = 1 for reading
     tx_buf[addr_idx] = 0x40 | (reg_addr & 0x1F);  // Read: W0=1
     
+    // zephyr likes spi buffers
     struct spi_buf tx_spi_buf = { .buf = tx_buf, .len = FRAME_SIZE };
     struct spi_buf_set tx_set = { .buffers = &tx_spi_buf, .count = 1 };
     struct spi_buf rx_spi_buf = { .buf = rx_buf, .len = FRAME_SIZE };
     struct spi_buf_set rx_set = { .buffers = &rx_spi_buf, .count = 1 };
     
-    // Send read request
+    // Send read request (read bit is low, sends address)
     ret = spi_transceive(chain->spi_dev, &chain->spi_cfg, &tx_set, &rx_set);
     if (ret < 0) {
         printk("SPI read request failed: %d\n", ret);
@@ -101,7 +118,7 @@ int drv8434s_read_register(struct drv8434s_chain *chain, uint8_t device_num,
     
     k_busy_wait(1);
     
-    // Transaction 2: Clock out the data
+    // Transaction 2: Clock out the data (send garbage data to receive the data)
     memset(tx_buf, 0, FRAME_SIZE);
     tx_buf[0] = HDR1_BASE | NUM_DEVICES;
     tx_buf[1] = HDR2_BASE;
