@@ -117,7 +117,7 @@
 				#gpio-cells = < 0x2 >;
 				reg = < 0x40020000 0x400 >;
 				clocks = < &rcc 0x30 0x1 >;
-				phandle = < 0x12 >;
+				phandle = < 0x24 >;
 			};
 			gpiob: gpio@40020400 {
 				compatible = "st,stm32-gpio";
@@ -125,7 +125,7 @@
 				#gpio-cells = < 0x2 >;
 				reg = < 0x40020400 0x400 >;
 				clocks = < &rcc 0x30 0x2 >;
-				phandle = < 0x24 >;
+				phandle = < 0x12 >;
 			};
 			gpioc: gpio@40020800 {
 				compatible = "st,stm32-gpio";
@@ -367,10 +367,20 @@
 			status = "okay";
 			pinctrl-0 = < &spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pa7 >;
 			pinctrl-names = "default";
-			cs-gpios = < &gpioa 0x4 0x1 >;
-			drv8434s_chain: drv8434s@0 {
+			cs-gpios = < &gpiob 0x6 0x1 >, < &gpiob 0x7 0x1 >, < &gpiob 0x8 0x1 >;
+			drv8434s_1: drv8434s@0 {
 				compatible = "spi-device";
 				reg = < 0x0 >;
+				spi-max-frequency = < 0xf4240 >;
+			};
+			drv8434s_2: drv8434s@1 {
+				compatible = "spi-device";
+				reg = < 0x1 >;
+				spi-max-frequency = < 0xf4240 >;
+			};
+			drv8434s_3: drv8434s@2 {
+				compatible = "spi-device";
+				reg = < 0x2 >;
 				spi-max-frequency = < 0xf4240 >;
 			};
 		};

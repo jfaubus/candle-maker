@@ -2,36 +2,43 @@
 #define DAISY_CHAIN_H
 
 #include <zephyr/kernel.h>
+#include <zephyr/device.h>
 #include <zephyr/drivers/spi.h>
-#include <string.h>
+#include <zephyr/drivers/gpio.h>
 
-#define NUM_DEVICES 3
-#define FRAME_SIZE 8
+// DRV8434S Register Addresses (from datasheet)
+#define DRV8434S_FAULT_REG    0x00  // Fault status register
+#define DRV8434S_DIAG1_REG    0x01  // Diagnostics 1
+#define DRV8434S_DIAG2_REG    0x02  // Diagnostics 2
+#define DRV8434S_CTRL1_REG    0x03  // Control register 1
+#define DRV8434S_CTRL2_REG    0x04  // Control register 2 (DIR, STEP, SPI_DIR, SPI_STEP, MICROSTEP_MODE)
+#define DRV8434S_CTRL3_REG    0x05  // Control register 3 (overcurrent check)
+#define DRV8434S_CTRL4_REG    0x06  // Control register 4 (stall detection)
+#define DRV8434S_CTRL5_REG    0x07  // Control register 5
+#define DRV8434S_CTRL6_REG    0x08  // Control register 6
+#define DRV8434S_CTRL7_REG    0x09  // Control register 7
 
-// Header byte definitions
-#define HDR1_BASE 0x80
-#define HDR2_BASE 0x80
 
-// Register definitions
-#define DRV8434S_FAULT  0x00
-#define DRV8434S_DIAG1  0x01
-#define DRV8434S_DIAG2  0x02
-#define DRV8434S_CTRL1  0x03
-#define DRV8434S_CTRL2  0x04
-#define DRV8434S_CTRL3  0x05
-#define DRV8434S_CTRL4  0x06
-#define DRV8434S_CTRL5  0x07
+//extern = tells compiler "these variables exists somewhere TRUST"
+extern const struct device *spi_dev1;
+extern const struct device *spi_dev2;
+extern const struct device *spi_dev3;
 
-struct drv8434s_chain {
-    const struct device *spi_dev;
-    struct spi_config spi_cfg;
-};
+extern struct spi_config spi_cfg1;
+extern struct spi_config spi_cfg2;
+extern struct spi_config spi_cfg3;
 
-// Just init, read, and write
-int drv8434s_chain_init(struct drv8434s_chain *chain);
-int drv8434s_write_register(struct drv8434s_chain *chain, uint8_t device_num, 
-                             uint8_t reg_addr, uint8_t data);
-int drv8434s_read_register(struct drv8434s_chain *chain, uint8_t device_num, 
-                            uint8_t reg_addr, uint8_t *data);
+extern struct k_mutex spi_mutex;
 
-#endif
+// Function declarations
+int drv8434s_init(void);
+int drv8434s_write_reg(const struct device *spi_dev, 
+                       const struct spi_config *spi_cfg,
+                       uint8_t reg, 
+                       uint8_t value);
+int drv8434s_read_reg(const struct device *spi_dev,
+                      const struct spi_config *spi_cfg,
+                      uint8_t reg,
+                      uint8_t *value);
+
+#endif // DAISY_CHAIN_H
