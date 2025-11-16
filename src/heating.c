@@ -1,6 +1,6 @@
-// Goal for this code 
 // -starts a thread that reads from the adc -> prints the raw and processed value and checks if its too high
 // also toggles a GPIO so I can confirm I have control over that pin
+// need to process the thermistor adc reading 
 
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
@@ -17,7 +17,7 @@
 static const struct gpio_dt_spec heating_spec = 
     GPIO_DT_SPEC_GET(DT_NODELABEL(heating_output), gpios);
 
-// ADC setup - use the dt_spec API (simpler!)
+
 #define ADC_NODE DT_NODELABEL(adc1)
 
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), 0);
@@ -71,7 +71,7 @@ double read_thermistor_temp(void) {
 
 
 
-/* Thread must accept three void * args to match K_THREAD_DEFINE */
+//Thread must accept three void * args to match K_THREAD_DEFINE 
 void temp_safety_thread(void *p1, void *p2, void *p3)
 {
     ARG_UNUSED(p1);
@@ -126,7 +126,7 @@ int main(void)
         return err;
     }
     
-    printk("Candle machine initialized\n");
+    printk("All initialized\n");
     
     // Temperature safety thread runs automatically (K_THREAD_DEFINE)
     while (1) {

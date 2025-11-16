@@ -1,6 +1,8 @@
 / {
     zephyr,user {
         io-channels = <&adc1 1>;
+        io-channels = <&adc1 2>;
+        io-channels = <&adc1 3>;
         //gpios = <&gpioc 14 GPIO_ACTIVE_HIGH>; // use this later for heater gpio
     };
 
@@ -10,18 +12,23 @@
         heating-output = &heating_output;
     };
 
+    /* 
     gpio_input: gpio_input {
         compatible = "gpio-keys";
         status = "okay";
+
+        // gpio pin for the tach (deleting because we need analog not digital)
         tach_input: tach_ctrl_input {
             gpios = <&gpioc 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
             label = "Tach Input";
         };
-    };
+    };*/
 
     gpio_output: gpio_output {
         compatible = "gpio-leds";
         status = "okay";
+
+        // gpio to control the heating element switch
         heating_output: heat_control {
             gpios = <&gpioc 14 GPIO_ACTIVE_HIGH>;
             label = "Heating Control Pin";
@@ -31,6 +38,8 @@
     fan_pwm_node {
         compatible = "pwm-leds";
         status = "okay";
+
+        // pwm to control the fan speed (will need to add x amount more for x fans)
         fan_pwm: fan_ctrl_pwm {
             pwms = <&pwm1 1 PWM_USEC(500) PWM_POLARITY_NORMAL>;
             label = "Fan Control";
@@ -60,8 +69,28 @@
     pinctrl-names = "default";
     status = "okay";
     
+    // adc channel 1 for thermistor 
     channel@1 {
         reg = <1>;  // ADC channel 1 
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
+
+
+    // adc channel 2 for strain guage 
+    channel@2 {
+        reg = <2>;  // ADC channel 2
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
+
+    // adc channel 3 for tach
+    channel@3 {
+        reg = <3>;  // ADC channel 2
         zephyr,gain = "ADC_GAIN_1";
         zephyr,reference = "ADC_REF_INTERNAL";
         zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
@@ -80,6 +109,8 @@
     status = "okay";
     st,prescaler = <8399>;  
     
+
+    // Timer 1 for fan 1 pwm
     pwm1: pwm1 {
         compatible = "st,stm32-pwm";
         status = "okay";
@@ -102,18 +133,21 @@
                <&gpiob 7 GPIO_ACTIVE_LOW>,   // M-CS2 (Driver 2)
                <&gpiob 8 GPIO_ACTIVE_LOW>;   // M-CS3 (Driver 3)
     
+    // spi device 1 
     drv8434s_1: drv8434s@0 {
         compatible = "spi-device";
         reg = <0>;  // Uses cs-gpios[0]
         spi-max-frequency = <1000000>;
     };
     
+    // spi device 2
     drv8434s_2: drv8434s@1 {
         compatible = "spi-device";
         reg = <1>;  // Uses cs-gpios[1]
         spi-max-frequency = <1000000>;
     };
     
+    // spi device 3
     drv8434s_3: drv8434s@2 {
         compatible = "spi-device";
         reg = <2>;  // Uses cs-gpios[2]
