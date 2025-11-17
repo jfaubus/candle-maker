@@ -30,7 +30,22 @@ extern struct spi_config spi_cfg3;
 
 extern struct k_mutex spi_mutex;
 
+// Motor command structure
+struct motor_command {
+    uint8_t motor_id;      // 1, 2, or 3
+    int32_t steps;         // Positive = forward, negative = reverse
+    uint32_t speed_hz;     // Steps per second
+    bool in_use;           // Flag to indicate if command is active
+};
+
+
+// Thread stack and priority definitions
+#define MOTOR_THREAD_STACK_SIZE 2048
+#define MOTOR_THREAD_PRIORITY 5
+
 // Function declarations
+int motor_move(uint8_t motor_id, int32_t steps, uint32_t speed_hz);
+void motor_thread_entry(void *p1, void *p2, void *p3);
 int drv8434s_init(void);
 int drv8434s_write_reg(const struct device *spi_dev, 
                        const struct spi_config *spi_cfg,
@@ -42,3 +57,10 @@ int drv8434s_read_reg(const struct device *spi_dev,
                       uint8_t *value);
 
 #endif // DAISY_CHAIN_H
+
+
+
+
+
+
+
