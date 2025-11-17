@@ -1,7 +1,8 @@
 #include "daisy_chain.h"
 
 
-
+//flag for thru beam
+static volatile bool thru_beam_triggered = false;
 
 // Motor command queue (one command per motor)
 static struct motor_command motor_commands[3] = {0};
@@ -13,6 +14,8 @@ K_MUTEX_DEFINE(spi_mutex);
 
 // Semaphore to wake up motor thread
 K_SEM_DEFINE(motor_sem, 0, 1);
+
+
 
 // Motor thread
 K_THREAD_DEFINE(motor_thread_id, MOTOR_THREAD_STACK_SIZE,
@@ -27,7 +30,11 @@ struct spi_config spi_cfg1;
 struct spi_config spi_cfg2;
 struct spi_config spi_cfg3;
 
-
+// Thru beam ISR (will need to configure and attach in init code)
+void thru_beam_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
+{
+    thru_beam_triggered = true;
+}
 
 
 int drv8434s_init(void) {
