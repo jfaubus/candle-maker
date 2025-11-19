@@ -1,4 +1,4 @@
-//THIS IS FOR OUR SENSORS -> encoder + thru beam
+//THIS IS FOR OUR SENSORS -> encoder + thru beam + limit switch
 //also need to change tach reading to gpio
 // flat guage sensor and thermistor are just fancy resistors
 
@@ -15,6 +15,8 @@ void thru_beam_isr(const struct device *dev, struct gpio_callback *cb, uint32_t 
     k_sem_take(&motor_enable_sem, K_NO_WAIT);
 }
 
+
+// potentially will have to control the motor completely separately 
 void wick_motor_control_thread(void)
 {
     while (1) {

@@ -177,7 +177,7 @@ int drv8434s_read_reg(const struct device *spi_dev, const struct spi_config *spi
         printk("failed to read %d\n", flag);
         }
 
-    k_usleep(5);  // 5 µs 
+    k_usleep(5);  // 5 microseconds
 
 
     *value = rx_buf[1];  // Register data in lower byte
@@ -221,24 +221,26 @@ int motor_init_for_spi_stepping(uint8_t motor_id) {
     // K_FOREVER means wait indefinitely until mutex is available
     k_mutex_lock(&spi_mutex, K_FOREVER);
     
+
     // Configure CTRL1: Enable device, set decay mode
-    // Bit 7: DTIME = 0 (1600ns dead time)
-    // Bit 6-4: TRQ_DAC = 111 (100% torque)
-    // Bit 3: EN_OUT = 1 (enable outputs)
-    // Bit 1-0: DECAY = 01 (slow decay)
-    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, 0x79);
+
+    // Bit 7-4: TRQ_DAC = 0000 (100% torque)
+    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL1_REG, 0x00);
     
     // Configure CTRL2: Microstepping mode
-    // Bits 7-4: MICROSTEP_MODE = 0000 (full step)
-    // (0010 = 1/4 step, 0100 = 1/8 step, etc.)
-    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, 0x00);
+    // Bit 7: EN_OUT: 1 (enable)
+    // Bit 2-0: 111 DECAY (try editing for smoother motion??)~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // 1000 0111 = 0x87
+    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL2_REG, 0x87);
     
     // Configure CTRL3: SPI stepping mode
-    // Bit 7: SPI_DIR = 0 (forward, will change per command)
-    // Bit 6: SPI_STEP = 0 (initially no step)
-    // Bit 5: STL_REP = 0 (don't repeat step)
-    // Bit 1: STL_EN = 1 (enable SPI step control)
-    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, 0x02);
+    // Bit 7: DIR = 0 (forward, will change per command)
+    // Bit 6: STEP = 0 (no step initially)
+    // Bit 5: SPI_DIR =  1(spi controls dir)
+    // Bits 3-0: MICROSTEP_MODE = 0000 (full step)
+    // (0010 = 1/4 step, 0100 = 1/8 step, etc)
+    // 0011 0000 = 0x30
+    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, 0x30);
     
     k_mutex_unlock(&spi_mutex);
     
@@ -333,9 +335,10 @@ void motor_thread_entry(void *p1, void *p2, void *p3) {
             k_mutex_lock(&spi_mutex, K_FOREVER);
             
              // set direction in CTRL3
-            uint8_t ctrl3_val = 0x02;
+             // 1000 0000 = 0x80
+            uint8_t ctrl3_val = 0x80;
             if (!forward) {
-                ctrl3_val |= 0x80;
+                ctrl3_val |= 0x00;
             }
             drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val);
             
@@ -353,6 +356,7 @@ void motor_thread_entry(void *p1, void *p2, void *p3) {
                         // Do exactly 4 more steps (this will change after testing)
                         printk("Moving 4 additional steps\n");
                         for (int j = 0; j < 4; j++) {
+                            // 0100 0000 = 0x40
                             drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val | 0x40);
                             k_usleep(1);
                             drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val);

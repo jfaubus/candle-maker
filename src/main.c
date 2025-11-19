@@ -1,5 +1,6 @@
 // main.c
 #include "daisy_chain.h"
+// this is literally just for testing the motors, were going to see if i can get them to be smoother
 
 
 int configure_driver(const struct device *spi_dev, 
