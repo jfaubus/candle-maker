@@ -5,7 +5,7 @@
  * sachins sensor
  * processing thermistor and tach input
  * limit switch
- * sending UI messages
+ * sending UI messages (add message queue put in between state transitions)
  * 
  * This weekend: 
  *      -state diagram frame (at least confirm each state is being entered using print messages and you can 
@@ -105,22 +105,38 @@ struct user_object {
  * s8: ESTOP
  * run = stop all threads/motors
  *       display error message
- *       "how do we retunr to the original state?"
+ *       "how do we retunr fto the original state?"
  */
 
-enum state {
-    IDLE,
-    INIT_CHECK,
-    WAX_DISPENSE,
-    HEATING,
-    SCENT_DISPENSE,
-    STIRRING,
-    WICK_INSERT,
-    COOLING,
-    ESTOP,
-    ENDSTATE,
-    WASH_CYCLE
-};
+ /* ~~~~~~~~MOTOR IDs~~~~~~~~~
+  *  scent (HANNAH) = 1
+  #  wax (NICK) = 2
+  #  stirring (DEVEN) = 3
+  # wick (SACHIN) = 4 -> special case
+ 
+ */
+
+
+#include "state_machine.h"
+
+ #define SCENT_ID 1
+ #define SCENT_STEPS 3200
+ #define SCENT_SPEED 5
+
+ #define WAX_ID 2
+ #define WAX_STEPS 3200
+ #define WAX_SPEED 5
+ 
+ #define STIR_ID 2
+ #define STIR_STEPS 3200
+ #define STIR_SPEED 5
+
+ #define WICK_ID 2
+ #define WICK_STEPS 3200
+ #define WICK_SPEED 5
+
+
+K_MSGQ_DEFINE(state_msgq, sizeof(enum state), 10, 4);
 
 struct machine_state {
     enum state current;
@@ -136,12 +152,14 @@ struct machine_state {
 void main(void) {
     struct machine_state machine = {.current = IDLE};
     
-    // Start temperature monitoring thread (simple)
+    // Start temperature monitoring thread
+    //***************************************************** */
     k_thread_create(..., temp_monitor_thread, ...);
     
     while (1) {
         // Check E-stop first
         if (machine.estop_flag) {
+            //***************IDK WHAT TO DO ABOUT THIS FUNCTION... */
             handle_estop(&machine);
             continue;
         }
@@ -150,25 +168,27 @@ void main(void) {
         switch(machine.current) {
             case IDLE:
                 printk("Waiting for button press...\n");
-                if (button_pressed()== 2 ) {
+                //*************Button_pressed() < 2 sec ? 1 : 0 */
+                if (button_pressed()) {
                     machine.current = INIT_CHECK;
                 }
-                else if (button_pressed() == 3) {
+                else if (!button_pressed()) {
                     machine.current = WASH_CYCLE;
                 }
                 break;
                 
             case WASH_CYCLE:
                 printk("Wash cycle starting...");
-                run_motor_to_position(CHIP_SELECT, NUMBEROFTURNS);
+                // motor_move in daisy_chained.c
+                motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
                 machine.wash_cycle = 1;
                 machine.current = IDLE;
                 break;
                 
             case INIT_CHECK:
-                //retunring motors to a position?????
                 printk("Checking sensors...\n");
-                if (check_strain_gauge() && check_limit_switch()) {
+                //*****************NEED TO MAKE THESE FUNCTIONS */
+                if (read_strain_gauge() && read_limit_switch()) {
                     printk("Checks passed!\n");
                     machine.current = WAX_DISPENSE;
                 } else {
@@ -179,15 +199,16 @@ void main(void) {
                 
             case WAX_DISPENSE:
                 printk("Dispensing wax...\n");
-                run_motor_to_position(CHIP_SELECT, NUMBEROFTURNS);
+                motor_move(WAX_ID, WAX_STEPS, WAX_SPEED);
                 machine.current = HEATING;
                 break;
                 
             case HEATING:
+            //NEED TO DEFINE HEATING ELEMENT
                 gpio_pin_set(heating_element, 1);  // Turn on heat
                 printk("Heating... Current: %.1f°C\n", machine.current_temp);
                 
-                //NEED TO DECIDE TARFET TEMP
+                //NEED TO DECIDE TARFET TEMP -> talk to ty
                 if (machine.current_temp >= TARGET_TEMP) {
                     gpio_pin_set(heating_element, 0);
                     machine.current = SCENT_DISPENSE;
@@ -197,23 +218,24 @@ void main(void) {
             case SCENT_DISPENSE:
                 printk("dispensing scent");
                 if(machine.wash_cycle == 1){
-                    run_motor_to_position(CHIP_SELECT, NUMBEROFTURNS + HOW EVER MUCH HANNAH SAID);
+                     motor_move(SCENT_ID, SCENT_STEPS + 3200, SCENT_SPEED);
                 }
                 else{
-                    run_motor_to_position(CHIP_SELECT, NUMBEROFTURNS);
+                     motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
                 }
                 machine.current = STIRRING;
                 break;
 
             case STIRRING:
                 printk("stirring the wax");
-                run_motor_to_position(CHIP_SELECT, NUMBEROFTURNS);
+                motor_move(STIR_ID, STIR_STEPS, STIR_SPEED);
                 machine.current = WICK_INSERT;
                 break;
 
             case WICK_INSERT:
                 printk("starting the wick insert");
-                run_motor_to_position(CHIP_SELECT, NUMBEROFTURNS);
+                //*******SACHIN SPECIAL CASE **************************************/
+                motor_move(WICK_ID, WICK_STEPS, WICK_SPEED);
                 //STOP WHEN SENSOR REACHES POSITION
                 //MOVE THE MOTOR A LITTLE MORE
                 machine.current = COOLING;
@@ -222,6 +244,7 @@ void main(void) {
 
             case COOLING:
                 printk("Starting cooling process");
+                // *******************START COOLING FUNCTION*********
                 start_cooling();
                 //WHEN TEMP REACHED/X AMOUNT OF TIME PASSED
 
@@ -230,14 +253,14 @@ void main(void) {
 
                 
             case ENDSTATE:
-                //whatever happens at the end
+                //whatever happens at the end -> unlock doorx
                 
             case ESTOP:
-                // save any current state taht are important
+                // save any current state taht are important? Maybe save current state and then see if something needs to be done
                 //          -main one i can think of is sachins motors just dont wnat it to over a hole
                 stop_all_motors();
                 gpio_pin_set(heating_element, 0);
-                printk("!!! E-STOP - System halted !!!\n");
+                printk("E-STOP - System STOP \n");
                 // Wait for manual reset
                 break;
         }
