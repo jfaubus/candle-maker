@@ -26,11 +26,54 @@ static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
 
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), 3);
 
+K_THREAD_DEFINE(tach_thread_id, TACHTHREAD_STACK_SIZE,
+                tach_monitoring_thread, NULL, NULL, NULL, TACHTHREAD_PRIORITY, 0, 0);
 
 
 
 // Buffer for ADC sample
 static uint16_t sample_buffer[1];
+
+
+
+int cooling_init(void){
+
+    int flag;
+
+    // Check if PWM device is ready 
+    if (!device_is_ready(pwm_led0.dev)) {
+        printk("Fan PWM device not ready\n");
+        return -1;
+    }
+
+     printk("Fan controller initialized\n");
+
+    // Check if ADC is ready
+    if (!adc_is_ready_dt(&adc_channel)) {
+        printk("ADC device not ready\n");
+        return -1;
+    }
+
+    // Configure the ADC channel
+    flag = adc_channel_setup_dt(&adc_channel);
+    if (flag < 0) {
+        printk("Failed to setup ADC channel (%d)\n", flag);
+        return flag;
+    }
+
+    // PWM settings -> using device tree default
+    uint32_t period_us = 500;  // 500µs = 2kHz
+    uint32_t duty_percent = 0;
+    
+    // Start with fan stopped
+    flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), 0);
+    if (flag < 0) {
+        printk("Failed to initialize PWM: %d\n", flag);
+        return flag;
+    }
+}
+
+
 
 double read_tach_speed(void) { 
     int err;
@@ -79,102 +122,51 @@ double read_tach_speed(void) {
 
 
 //Thread must accept three void * args to match K_THREAD_DEFINE 
-void tach_monitoring_thread()
+void tach_monitoring_thread(void *p1, void *p2, void *p3)
 {
+    ARG_UNUSED(p1);
+    ARG_UNUSED(p2);
+    ARG_UNUSED(p3);
 
 
     while (1) {
         double speed = read_tach_speed();
         if (speed > OPERATING_SPEED + SPEED_ERROR) {
             //set pwm accordingly
-            printk("Speed to high: %.1f\n", speed);
+            printk("Speed too high: %.1f\n", speed);
         }
         else if (speed < OPERATING_SPEED - SPEED_ERROR){
-            printk("Speed to low: %.1f\n", speed);
+            printk("Speed too low: %.1f\n", speed);
         }
         k_msleep(100);
     }
 }
 
-K_THREAD_DEFINE(tach_thread_id, TACHTHREAD_STACK_SIZE,
-                tach_monitoring_thread, NULL, NULL, NULL, TACHTHREAD_PRIORITY, 0, 0);
 
 
-int main(void)
-{
-
-    printk("Screen started\n");
-    int flag;
-    
-
-
-
-    // Check if PWM device is ready 
-    if (!device_is_ready(pwm_led0.dev)) {
-        printk("Fan PWM device not ready\n");
-        return -1;
-    }
-    
-    /*
-    // Check if tach GPIO is ready
-    if (!gpio_is_ready_dt(&tach_input)) {
-        printk("Tach input GPIO not ready\n");
-        return -1;
-    }
-    
-    // Configure tach as input (pull-up already set in device tree)
-    flag = gpio_pin_configure_dt(&tach_input, GPIO_INPUT);
-    if (flag < 0) {
-        printk("Failed to configure tach GPIO: %d\n", flag);
-        return flag;
-    }*/
-
-    // Check if ADC is ready
-    if (!adc_is_ready_dt(&adc_channel)) {
-        printk("ADC device not ready\n");
-        return -1;
-    }
-    
-    // Configure the ADC channel
-    flag = adc_channel_setup_dt(&adc_channel);
-    if (flag < 0) {
-        printk("Failed to setup ADC channel (%d)\n", flag);
-        return flag;
-    }
-    
-    printk("Fan controller initialized\n");
-    
-    // PWM settings - using your device tree default
-    uint32_t period_us = 500;  // 500µs = 2kHz
-    uint32_t duty_percent = 0;
-    
-    // Start with fan stopped
-    flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), 0);
-    if (flag < 0) {
-        printk("Failed to initialize PWM: %d\n", flag);
-        return flag;
-    }
-    
-    printk("Fan stopped (starting safely)\n");
-     //k_usleep(5);  // 5 ms to be safe
-    
+void set_fan(int stat){
     // Start fan at 50% duty cycle
-    duty_percent = 100;
-    uint32_t pulse_us = (period_us * duty_percent) / 100;
-    flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), PWM_USEC(pulse_us));
-    if (flag < 0) {
-        printk("Failed to start PWM: %d\n", flag);
-        return flag;
+    if (stat == 1){
+        duty_percent = 100;
+        uint32_t pulse_us = (period_us * duty_percent) / 100;
+        flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), PWM_USEC(pulse_us));
+        if (flag < 0) {
+            printk("Failed to start PWM: %d\n", flag);
+            return flag;
+        }
+        printk("Fan started at %d%% duty cycle\n", duty_percent);
     }
-    
-    printk("Fan started at %d%% duty cycle\n", duty_percent);
-    
-
-    while (1) {
-
-        
-       k_msleep(500);
+    // turn pwm off (fan off)
+    else if (state == 0){
+        flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), 0);
+        if (flag < 0) {
+            printk("Failed to start PWM: %d\n", flag);
+            return flag;
+        }
+        printk("turned off fan pwm");
     }
-    
-    return 0;
+    else {
+        printk("failed to start or stop the fan (invalid arg?)");
+    }
 }
+

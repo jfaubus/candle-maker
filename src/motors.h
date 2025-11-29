@@ -1,10 +1,11 @@
-#ifndef DAISY_CHAIN_H
-#define DAISY_CHAIN_H
+#ifndef MOTORS_H
+#define MOTORS_H
 
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/spi.h>
 #include <zephyr/drivers/gpio.h>
+
 
 // DRV8434S Register Addresses (from datasheet)
 #define DRV8434S_FAULT_REG    0x00  // Fault status register
@@ -56,7 +57,7 @@ int drv8434s_read_reg(const struct device *spi_dev,
                       uint8_t reg,
                       uint8_t *value);
 
-#endif // DAISY_CHAIN_H
+#endif // MOTORS_H
 
 
 

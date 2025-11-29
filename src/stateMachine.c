@@ -204,7 +204,7 @@ void main(void) {
                 
                 //************NEED TO DECIDE TARFET TEMP (define in heater.h)-> talk to ty
                 // the temp monitoring thread should be continously updating machine.current_temp
-                if (machine.current_temp >= MAX_SAFE_TEMP) {
+                if (machine.current_temp >= MAX_OPER_TEMP) {
                     //gpio_pin_set(heating_element, 0);
                     err = set_heating(0);
                     if (err < 0) {

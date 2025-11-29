@@ -1,4 +1,9 @@
-#include "daisy_chain.h"
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/spi.h>
+#include <zephyr/drivers/gpio.h>
+
+#include "motors.h"
 
 
 //flag for thru beam
@@ -9,7 +14,7 @@ static struct motor_command motor_commands[3] = {0};
 
 // Mutex for motor command access
 K_MUTEX_DEFINE(motor_cmd_mutex);
-
+// Mutex for SPI bus access
 K_MUTEX_DEFINE(spi_mutex);
 
 // Semaphore to wake up motor thread
