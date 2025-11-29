@@ -16,6 +16,13 @@
 #define TACHTHREAD_STACK_SIZE 512
 #define TACHTHREAD_PRIORITY 2
 
+
+// Semaphore to wake up cooling thread
+K_SEM_DEFINE(cooling_sem, 0, 1);
+
+// set duty cycle variable 
+static uint8_t current_duty = 100;
+
 // pwm node
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
 
@@ -135,9 +142,11 @@ void tach_monitoring_thread(void *p1, void *p2, void *p3)
         double speed = read_tach_speed();
         if (speed > OPERATING_SPEED + SPEED_ERROR) {
             //set pwm accordingly
+            newduty_cycle = duty_cycle - 10;
             printk("Speed too high: %.1f\n", speed);
         }
         else if (speed < OPERATING_SPEED - SPEED_ERROR){
+            newduty_cycle = duty_cycle + 10;
             printk("Speed too low: %.1f\n", speed);
         }
         k_msleep(100);
@@ -146,20 +155,32 @@ void tach_monitoring_thread(void *p1, void *p2, void *p3)
 
 
 
-int set_fan(int duty_percent){
+int set_fan(percent_duty){
     // Start fan at duty_percent * period
     // 0 duty_percent = off
-    
 
-    uint32_t pulse_us = (period_us * duty_percent) / 100;
+
+    uint32_t pulse_us = (period_us * percent_duty) / 100;
     flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), PWM_USEC(pulse_us));
     if (flag < 0) {
         printk("Failed to start PWM: %d\n", flag);
         return flag;
     }
     
-    printk("Fan started (or stopped) at %d%% duty cycle\n", duty_percent);
+    printk("Fan started (or stopped) at %d%% duty cycle\n", percent_duty);
     return 0; 
     
 }
 
+int stop_fan(){
+
+    flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), 0);
+    if (flag < 0) {
+        printk("Failed to start PWM: %d\n", flag);
+        return flag;
+    }
+    
+    printk("stopped fan %d%% duty cycle\n", 0);
+    return 0; 
+
+}
