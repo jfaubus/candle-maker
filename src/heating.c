@@ -1,8 +1,11 @@
-// -starts a thread that reads from the adc -> prints the raw and processed value and checks if its too high
-// also toggles a GPIO so I can confirm I have control over that pin -> need to toggle that pin from stateMachine
-//      add set helper function to set the pin high or low -> will need semaphore because of estop? But need to confirm estop will even interrupt that 
-// need to process the thermistor adc reading 
-// need to move main to an init function
+// heating_init() init function to configure the healing element gpio and thermistor adc 
+// set_heating() function to toggle the heating element pin high or low
+//      -> will need semaphore because of estop? But need to confirm estop will even interrupt that 
+// read_thermistor_temp() function to read thermistor temperature
+//      -> need to process the thermistor adc reading 
+//      
+// temp_safety_thread() starts a thread that reads from the adc -> prints the raw and processed value and checks if its too high
+
 
 
 #include <zephyr/kernel.h>
@@ -13,26 +16,24 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/drivers/adc.h>
 
+#include "heating.h"
 
 #define ADC_NODE DT_NODELABEL(adc1)
 #define TEMPTHREAD_STACK_SIZE 512
 #define TEMPTHREAD_PRIORITY 2
 
-#include "heating.h"
-
 
 // GPIO for heating
-static const struct gpio_dt_spec heating_spec = 
-    GPIO_DT_SPEC_GET(DT_NODELABEL(heating_output), gpios);
-
-
+static const struct gpio_dt_spec heating_spec = GPIO_DT_SPEC_GET(DT_NODELABEL(heating_output), gpios);
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), 0);
-
-
 // Buffer for ADC sample
 static uint16_t sample_buffer[1];
 
+K_THREAD_DEFINE(temp_thread_id, TEMPTHREAD_STACK_SIZE,
+                temp_safety_thread, NULL, NULL, NULL,
+                TEMPTHREAD_PRIORITY, 0, 0);
 
+// function to toggle the heating element pin high or low
 int set_heating(int stat){
     int err;
     err = gpio_pin_set_dt(&heating_spec, stat);
@@ -43,17 +44,20 @@ int set_heating(int stat){
     return 0;
 }
 
+// function to read thermistor temperature from the adc
 double read_thermistor_temp(void) { 
     int err;
     int32_t adc_value = 0;
     
     // Configure the sequence for reading
+    // temporary stack allocated struct (needs fresh sequence structure every time you read from adc)
     struct adc_sequence sequence = {
         .buffer = sample_buffer,
         .buffer_size = sizeof(sample_buffer),
     };
     
     // Setup the sequence from the ADC spec (this initializes channels, resolution, etc.)
+    // populates teh sequence struct with device tree settings (no hardware configuration)
     err = adc_sequence_init_dt(&adc_channel, &sequence);
     if (err < 0) {
         printk("Failed to init ADC sequence (%d)\n", err);
@@ -89,6 +93,7 @@ double read_thermistor_temp(void) {
 
 
 //Thread must accept three void * args to match K_THREAD_DEFINE 
+// starts temp safety thread after the adc is initialized
 void temp_safety_thread(void *p1, void *p2, void *p3)
 {
     ARG_UNUSED(p1);
@@ -113,12 +118,8 @@ void temp_safety_thread(void *p1, void *p2, void *p3)
     }
 }
 
-K_THREAD_DEFINE(temp_thread_id, TEMPTHREAD_STACK_SIZE,
-                temp_safety_thread, NULL, NULL, NULL,
-                TEMPTHREAD_PRIORITY, 0, 0);
 
-
-
+// init function to configure the healing element gpio and thermistor adc
 int heating_init(void){
     //initialize GPIO and the thermistor ADC for heating 
     int err;
