@@ -26,6 +26,9 @@ static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
 
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), 3);
 
+static uint32_t period_us = 500;  // 2kHz
+static uint32_t current_duty = 0;
+
 K_THREAD_DEFINE(tach_thread_id, TACHTHREAD_STACK_SIZE,
                 tach_monitoring_thread, NULL, NULL, NULL, TACHTHREAD_PRIORITY, 0, 0);
 
@@ -71,6 +74,7 @@ int cooling_init(void){
         printk("Failed to initialize PWM: %d\n", flag);
         return flag;
     }
+    return 0;
 }
 
 
@@ -119,8 +123,6 @@ double read_tach_speed(void) {
 }
 
 
-
-
 //Thread must accept three void * args to match K_THREAD_DEFINE 
 void tach_monitoring_thread(void *p1, void *p2, void *p3)
 {
@@ -144,29 +146,20 @@ void tach_monitoring_thread(void *p1, void *p2, void *p3)
 
 
 
-void set_fan(int stat){
-    // Start fan at 50% duty cycle
-    if (stat == 1){
-        duty_percent = 100;
-        uint32_t pulse_us = (period_us * duty_percent) / 100;
-        flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), PWM_USEC(pulse_us));
-        if (flag < 0) {
-            printk("Failed to start PWM: %d\n", flag);
-            return flag;
-        }
-        printk("Fan started at %d%% duty cycle\n", duty_percent);
+int set_fan(int duty_percent){
+    // Start fan at duty_percent * period
+    // 0 duty_percent = off
+    
+
+    uint32_t pulse_us = (period_us * duty_percent) / 100;
+    flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), PWM_USEC(pulse_us));
+    if (flag < 0) {
+        printk("Failed to start PWM: %d\n", flag);
+        return flag;
     }
-    // turn pwm off (fan off)
-    else if (state == 0){
-        flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), 0);
-        if (flag < 0) {
-            printk("Failed to start PWM: %d\n", flag);
-            return flag;
-        }
-        printk("turned off fan pwm");
-    }
-    else {
-        printk("failed to start or stop the fan (invalid arg?)");
-    }
+    
+    printk("Fan started (or stopped) at %d%% duty cycle\n", duty_percent);
+    return 0; 
+    
 }
 

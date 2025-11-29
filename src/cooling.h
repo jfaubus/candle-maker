@@ -4,8 +4,6 @@
 double read_tach_speed(void);
 int cooling_init(void);
 void tach_monitoring_thread();
-void set_fan(void);
-
-
+int set_fan(int duty_percent);
 
 #endif

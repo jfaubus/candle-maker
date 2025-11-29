@@ -245,8 +245,11 @@ void main(void) {
             case COOLING:
                 printk("Starting cooling process");
                 // *******************START COOLING FUNCTION*********
-                start_cooling();
+                //start fan with 100% duty cycle
+                set_fan(100);
                 //WHEN TEMP REACHED/X AMOUNT OF TIME PASSED
+                //set fan with 0% duty cycle
+                set_fan(0);
 
                 machine.current = ENDSTATE;
                 break;
