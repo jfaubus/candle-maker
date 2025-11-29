@@ -103,6 +103,7 @@
 
 #include "state_machine.h"
 #include "heating.h"
+#include "cooling.h"
 
  #define SCENT_ID 1
  #define SCENT_STEPS 3200
@@ -137,6 +138,26 @@ struct machine_state {
 void main(void) {
     struct machine_state machine = {.current = IDLE};
     
+    int err;
+    err = heating_init();
+    if (err < 0) {
+        printk("Failed to init heating: %d\n", err);
+        return;
+    }
+    
+    err = cooling_init();
+    if (err < 0) {
+        printk("Failed to init cooling: %d\n", err);
+        return;
+    }
+
+    err = motors_init();
+    if (err < 0) {
+        printk("Failed to init motors: %d\n", err);
+        return;
+    }
+
+
     // Start temperature monitoring thread
     //***************************************************** */
     k_thread_create(..., temp_monitor_thread, ...);
@@ -180,8 +201,7 @@ void main(void) {
                     printk("Check failed, returning to IDLE (for now but later this will send a message to the screen with the error and prompt them to press the button again\n");
                     machine.current = IDLE;
                 }
-                heating_init();
-                //OTHER INIT FUNCTIONS---> MOTORS
+
                 break;
                 
             case WAX_DISPENSE:
@@ -244,12 +264,13 @@ void main(void) {
 
             case COOLING:
                 printk("Starting cooling process");
-                // *******************START COOLING FUNCTION*********
-                //start fan with 100% duty cycle
-                set_fan(100);
-                //WHEN TEMP REACHED/X AMOUNT OF TIME PASSED
-                //set fan with 0% duty cycle
-                set_fan(0);
+
+                // start fan
+                start_cooling();
+                // WHEN TEMP REACHED/X AMOUNT OF TIME PASSED**** NEED TO TEST
+                k_msleep(30000); 
+                // stop fan
+                stop_cooling();
 
                 machine.current = ENDSTATE;
                 break;

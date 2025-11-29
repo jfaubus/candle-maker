@@ -1,6 +1,6 @@
 // need to process tach reading
 // need to add logic to monitor for big changes in tach and adjust pwm accordingly
-
+// maybe change pwm to pid?
 
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
@@ -11,17 +11,19 @@
 #include <zephyr/drivers/adc.h>
 
 
-#define OPERATING_SPEED 80
-#define SPEED_ERROR 10
+
 #define TACHTHREAD_STACK_SIZE 512
 #define TACHTHREAD_PRIORITY 2
+
+#define OPERATING_SPEED 80
+#define SPEED_ERROR 10
+#define DUTY_STEP 5    
 
 
 // Semaphore to wake up cooling thread
 K_SEM_DEFINE(cooling_sem, 0, 1);
 
-// set duty cycle variable 
-static uint8_t current_duty = 100;
+
 
 // pwm node
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
@@ -34,7 +36,7 @@ static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), 3);
 
 static uint32_t period_us = 500;  // 2kHz
-static uint32_t current_duty = 0;
+static uint8_t current_duty = 0;
 
 K_THREAD_DEFINE(tach_thread_id, TACHTHREAD_STACK_SIZE,
                 tach_monitoring_thread, NULL, NULL, NULL, TACHTHREAD_PRIORITY, 0, 0);
@@ -71,10 +73,6 @@ int cooling_init(void){
         return flag;
     }
 
-    // PWM settings -> using device tree default
-    uint32_t period_us = 500;  // 500µs = 2kHz
-    uint32_t duty_percent = 0;
-    
     // Start with fan stopped
     flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), 0);
     if (flag < 0) {
@@ -133,33 +131,42 @@ double read_tach_speed(void) {
 //Thread must accept three void * args to match K_THREAD_DEFINE 
 void tach_monitoring_thread(void *p1, void *p2, void *p3)
 {
+    
     ARG_UNUSED(p1);
     ARG_UNUSED(p2);
     ARG_UNUSED(p3);
 
 
     while (1) {
-        double speed = read_tach_speed();
-        if (speed > OPERATING_SPEED + SPEED_ERROR) {
-            //set pwm accordingly
-            newduty_cycle = duty_cycle - 10;
-            printk("Speed too high: %.1f\n", speed);
+        // Waits for a command
+        k_sem_take(&cooling_sem, K_FOREVER);
+
+        
+        while(k_sem_take(&cooling_sem, K_NO_WAIT) == 0){
+            double speed = read_tach_speed();
+            if (speed > OPERATING_SPEED + SPEED_ERROR) {
+                //set pwm accordingly
+                current_duty = (current_duty > DUTY_STEP) ? current_duty - DUTY_STEP : 0;
+                set_fan(current_duty);
+                printk("Speed too high: %.1f, current duty: %d%%\n ", speed, current_duty);
+            }
+            else if (speed < OPERATING_SPEED - SPEED_ERROR){
+                current_duty = (current_duty < 100 - DUTY_STEP) ? current_duty + DUTY_STEP : 100;
+                set_fan(current_duty);
+                printk("Speed too low: %.1f, current duty: %d%%\n ", speed, current_duty);
+            }
+        
+        k_sem_give(&cooling_sem);
+        k_msleep(2000);
         }
-        else if (speed < OPERATING_SPEED - SPEED_ERROR){
-            newduty_cycle = duty_cycle + 10;
-            printk("Speed too low: %.1f\n", speed);
-        }
-        k_msleep(100);
     }
 }
 
 
 
-int set_fan(percent_duty){
+int set_fan(uint8_t percent_duty){
     // Start fan at duty_percent * period
-    // 0 duty_percent = off
-
-
+    int flag;
     uint32_t pulse_us = (period_us * percent_duty) / 100;
     flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), PWM_USEC(pulse_us));
     if (flag < 0) {
@@ -173,7 +180,8 @@ int set_fan(percent_duty){
 }
 
 int stop_fan(){
-
+    // 0 duty cycle = off
+    int flag;
     flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), 0);
     if (flag < 0) {
         printk("Failed to start PWM: %d\n", flag);
@@ -183,4 +191,14 @@ int stop_fan(){
     printk("stopped fan %d%% duty cycle\n", 0);
     return 0; 
 
+}
+
+void start_cooling(void) {
+    current_duty = 50;  // Start at 50%
+    set_fan(current_duty);
+    k_sem_give(&cooling_sem);  // Wake up tach monitoring thread
+}
+void stop_cooling(void) {
+    k_sem_take(&cooling_sem, K_NO_WAIT);  // Stop tach monitoring
+    stop_fan(); // stop fan
 }
