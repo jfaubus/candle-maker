@@ -157,10 +157,6 @@ void main(void) {
         return;
     }
 
-
-    // Start temperature monitoring thread
-    //***************************************************** */
-    k_thread_create(..., temp_monitor_thread, ...);
     
     while (1) {
         // Check E-stop first
@@ -213,24 +209,23 @@ void main(void) {
             case HEATING:
 
             //call function in Heating to set this pin high
+                { // need to put this in curly brackets so err is only in scope in this switch case
                 int err;
                 err = set_heating(1);
                 if (err < 0) {
                 printk("Failed to set heating pin: %d\n", err);
                 return err;
                 }
-            //same as gpio_pin_set(heating_element, 1);  // Turn on heat
+                }
+
+                 // Read temp directly when needed
+                machine.current_temp = get_current_temp();
                 printk("Heating... Current: %.1f°C\n", machine.current_temp);
-                
                 //************NEED TO DECIDE TARFET TEMP (define in heater.h)-> talk to ty
-                // the temp monitoring thread should be continously updating machine.current_temp
-                if (machine.current_temp >= MAX_OPER_TEMP) {
+                if (machine.current_temp >= TARGET_TEMP) {
                     //gpio_pin_set(heating_element, 0);
-                    err = set_heating(0);
-                    if (err < 0) {
-                    printk("Failed to set heating pin: %d\n", err);
-                    return err;
-                    }
+                    set_heating(0);
+                    printk("Target temp reached is reached -Next state: scent\n");
                     machine.current = SCENT_DISPENSE;
                 }
                 break;
@@ -277,33 +272,25 @@ void main(void) {
 
                 
             case ENDSTATE:
-                //whatever happens at the end -> unlock doorx
+                    printk("Candle  complete\n");
+                    // whatever happens at the end -> unlock doorx + success message
+                    machine.current = IDLE;  // Return to idle
+                    break;
                 
             case ESTOP:
                 // save any current state taht are important? Maybe save current state and then see if something needs to be done
                 //          -main one i can think of is sachins motors just dont wnat it to over a hole
                 stop_all_motors();
-                gpio_pin_set(heating_element, 0);
+                set_heating(0);
+                stop_cooling();
                 printk("E-STOP - System STOP \n");
                 // Wait for manual reset
+                while(1) {
+                    k_msleep(1000);
+                }
                 break;
         }
         
         k_msleep(100);  // Run state machine at 10Hz
-    }
-}
-
-// Simple temp monitoring thread
-void temp_monitor_thread(void *p1, void *p2, void *p3) {
-    struct machine_state *machine = (struct machine_state *)p1;
-    
-    while (1) {
-        machine->current_temp = read_thermistor_adc();
-        
-        if (machine->current_temp > DANGER_TEMP) {
-            machine->estop_flag = true;
-        }
-        
-        k_msleep(500);
     }
 }

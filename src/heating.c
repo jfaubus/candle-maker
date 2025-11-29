@@ -5,7 +5,7 @@
 //      -> need to process the thermistor adc reading 
 //      
 // temp_safety_thread() starts a thread that reads from the adc -> prints the raw and processed value and checks if its too high
-
+//      -> need to set Estop flag
 
 
 #include <zephyr/kernel.h>
@@ -28,6 +28,8 @@ static const struct gpio_dt_spec heating_spec = GPIO_DT_SPEC_GET(DT_NODELABEL(he
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), 0);
 // Buffer for ADC sample
 static uint16_t sample_buffer[1];
+//will be used by the state machine
+static volatile float current_temp = 0.0f; 
 
 K_THREAD_DEFINE(temp_thread_id, TEMPTHREAD_STACK_SIZE,
                 temp_safety_thread, NULL, NULL, NULL,
@@ -109,15 +111,21 @@ void temp_safety_thread(void *p1, void *p2, void *p3)
 
 
     while (1) {
-        double temp = read_thermistor_temp();
+        // cast the return to a float
+        current_temp = (float)read_thermistor_temp();
         if (temp > MAX_SAFE_TEMP) {
             gpio_pin_set_dt(&heating_spec, 0);
             printk("Overheat detected: %.1f°C\n", temp);
+            // TODO: Set estop flag somehow?
         }
         k_msleep(100);
     }
 }
 
+float get_current_temp(void) {
+    // no race conditions because a float is 32 bits so writing is an atomic operation
+    return current_temp;
+}
 
 // init function to configure the healing element gpio and thermistor adc
 int heating_init(void){
