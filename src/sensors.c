@@ -4,7 +4,7 @@
 
 //thru beam -> digital signal -> needs MCU pullup (they probs added on board but i think its fine to do both)
 
-
+// Idk if we actually need this in a separate file
 
 // Global semaphore - initialize with count 1 (motor can run)
 K_SEM_DEFINE(motor_enable_sem, 1, 1);
@@ -13,6 +13,17 @@ void thru_beam_isr(const struct device *dev, struct gpio_callback *cb, uint32_t 
 {
     // Take the semaphore to block motor thread
     k_sem_take(&motor_enable_sem, K_NO_WAIT);
+}
+
+
+void read_strain_guage(){
+    // return 1 if the strain guage detects weight
+
+
+}
+
+void read_limit_switch(){
+    // return 1 if the limit switch detects the object
 }
 
 

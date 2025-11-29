@@ -20,22 +20,6 @@
 */
 
 
-/*
-A state is represented by three functions, where one function implements the Entry 
-actions, another function implements the Run actions, and the last function 
-implements the Exit actions. The prototype for the entry and exit functions 
-are as follows: void funct(void *obj), and the prototype for the run action 
-is enum smf_state_result funct(void *obj) where the obj parameter is a user 
-defined structure that has the state machine context, smf_ctx, as its first 
-member. For example:
-
-struct user_object {
-   struct smf_ctx ctx;
-   //All User Defined Data Follows 
-};
-
-*/
-
 // Initial state = waiting for button press
 /* 
  * 
@@ -118,6 +102,7 @@ struct user_object {
 
 
 #include "state_machine.h"
+#include "heating.h"
 
  #define SCENT_ID 1
  #define SCENT_STEPS 3200
@@ -127,11 +112,11 @@ struct user_object {
  #define WAX_STEPS 3200
  #define WAX_SPEED 5
  
- #define STIR_ID 2
+ #define STIR_ID 3
  #define STIR_STEPS 3200
  #define STIR_SPEED 5
 
- #define WICK_ID 2
+ #define WICK_ID 4
  #define WICK_STEPS 3200
  #define WICK_SPEED 5
 
@@ -159,7 +144,7 @@ void main(void) {
     while (1) {
         // Check E-stop first
         if (machine.estop_flag) {
-            //***************IDK WHAT TO DO ABOUT THIS FUNCTION... */
+            //***************IDK WHAT TO DO ABOUT THIS FUNCTION... *************/
             handle_estop(&machine);
             continue;
         }
@@ -168,7 +153,7 @@ void main(void) {
         switch(machine.current) {
             case IDLE:
                 printk("Waiting for button press...\n");
-                //*************Button_pressed() < 2 sec ? 1 : 0 */
+                //*************Button_pressed() < 2 sec ? 1 : 0 ******************/
                 if (button_pressed()) {
                     machine.current = INIT_CHECK;
                 }
@@ -187,7 +172,7 @@ void main(void) {
                 
             case INIT_CHECK:
                 printk("Checking sensors...\n");
-                //*****************NEED TO MAKE THESE FUNCTIONS */
+                //*****************NEED TO MAKE THESE FUNCTIONS *********/
                 if (read_strain_gauge() && read_limit_switch()) {
                     printk("Checks passed!\n");
                     machine.current = WAX_DISPENSE;
@@ -195,6 +180,8 @@ void main(void) {
                     printk("Check failed, returning to IDLE (for now but later this will send a message to the screen with the error and prompt them to press the button again\n");
                     machine.current = IDLE;
                 }
+                heating_init();
+                //OTHER INIT FUNCTIONS---> MOTORS
                 break;
                 
             case WAX_DISPENSE:
@@ -204,13 +191,26 @@ void main(void) {
                 break;
                 
             case HEATING:
-            //NEED TO DEFINE HEATING ELEMENT
-                gpio_pin_set(heating_element, 1);  // Turn on heat
+
+            //call function in Heating to set this pin high
+                int err;
+                err = set_heating(1);
+                if (err < 0) {
+                printk("Failed to set heating pin: %d\n", err);
+                return err;
+                }
+            //same as gpio_pin_set(heating_element, 1);  // Turn on heat
                 printk("Heating... Current: %.1f°C\n", machine.current_temp);
                 
-                //NEED TO DECIDE TARFET TEMP -> talk to ty
-                if (machine.current_temp >= TARGET_TEMP) {
-                    gpio_pin_set(heating_element, 0);
+                //************NEED TO DECIDE TARFET TEMP (define in heater.h)-> talk to ty
+                // the temp monitoring thread should be continously updating machine.current_temp
+                if (machine.current_temp >= MAX_SAFE_TEMP) {
+                    //gpio_pin_set(heating_element, 0);
+                    err = set_heating(0);
+                    if (err < 0) {
+                    printk("Failed to set heating pin: %d\n", err);
+                    return err;
+                    }
                     machine.current = SCENT_DISPENSE;
                 }
                 break;

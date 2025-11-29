@@ -1,5 +1,5 @@
 // need to process tach reading
-// monitor for big changes in tach and adjust pwm accordingly
+// need to add logic to monitor for big changes in tach and adjust pwm accordingly
 
 
 #include <zephyr/kernel.h>

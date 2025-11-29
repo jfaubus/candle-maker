@@ -1,6 +1,9 @@
 // -starts a thread that reads from the adc -> prints the raw and processed value and checks if its too high
-// also toggles a GPIO so I can confirm I have control over that pin
+// also toggles a GPIO so I can confirm I have control over that pin -> need to toggle that pin from stateMachine
+//      add set helper function to set the pin high or low -> will need semaphore because of estop? But need to confirm estop will even interrupt that 
 // need to process the thermistor adc reading 
+// need to move main to an init function
+
 
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
@@ -10,21 +13,35 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/drivers/adc.h>
 
-#define MAX_SAFE_TEMP 80
+
+#define ADC_NODE DT_NODELABEL(adc1)
 #define TEMPTHREAD_STACK_SIZE 512
 #define TEMPTHREAD_PRIORITY 2
+
+#include "heating.h"
+
+
 // GPIO for heating
 static const struct gpio_dt_spec heating_spec = 
     GPIO_DT_SPEC_GET(DT_NODELABEL(heating_output), gpios);
 
-
-#define ADC_NODE DT_NODELABEL(adc1)
 
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), 0);
 
 
 // Buffer for ADC sample
 static uint16_t sample_buffer[1];
+
+
+int set_heating(int stat){
+    int err;
+    err = gpio_pin_set_dt(&heating_spec, stat);
+    if (err < 0){
+        printk("failed to set heating gpio %d\n", err);
+        return -1;
+    }
+    return 0;
+}
 
 double read_thermistor_temp(void) { 
     int err;
@@ -78,6 +95,14 @@ void temp_safety_thread(void *p1, void *p2, void *p3)
     ARG_UNUSED(p2);
     ARG_UNUSED(p3);
 
+    // Waits for ADC to be ready (set up in heating_init)
+   
+    while (!adc_is_ready_dt(&adc_channel)) {
+        k_msleep(100);
+    }
+    printk("ADC ready, temp safety thread started \n");
+
+
     while (1) {
         double temp = read_thermistor_temp();
         if (temp > MAX_SAFE_TEMP) {
@@ -94,10 +119,8 @@ K_THREAD_DEFINE(temp_thread_id, TEMPTHREAD_STACK_SIZE,
 
 
 
-
-
-int main(void)
-{
+int heating_init(void){
+    //initialize GPIO and the thermistor ADC for heating 
     int err;
     
     // Check if heating GPIO is ready
@@ -112,7 +135,8 @@ int main(void)
         printk("Failed to configure heating pin: %d\n", err);
         return err;
     }
-    
+
+
     // Check if ADC is ready
     if (!adc_is_ready_dt(&adc_channel)) {
         printk("ADC device not ready\n");
@@ -125,21 +149,7 @@ int main(void)
         printk("Failed to setup ADC channel (%d)\n", err);
         return err;
     }
-    
-    printk("All initialized\n");
-    
-    // Temperature safety thread runs automatically (K_THREAD_DEFINE)
-    while (1) {
-        // Turn heater on
-        gpio_pin_set_dt(&heating_spec, 1);
-        printk("Heater ON\n");
-        k_msleep(5000);  // 5 seconds
-        
-        // Turn heater off
-        gpio_pin_set_dt(&heating_spec, 0);
-        printk("Heater OFF\n");
-        k_msleep(5000);  // 5 seconds
-    }
-    
-    return 0;
+
+     printk("All initialized (heater_init) \n");
+     return 0; 
 }

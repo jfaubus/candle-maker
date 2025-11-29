@@ -345,7 +345,7 @@ void motor_thread_entry(void *p1, void *p2, void *p3) {
             // steppingggg
             // Check motor ID and use appropriate stepping loop
             // below is for sachin's stirring motor
-            if (motor_id == 1) {  // Motor with thru beam sensor
+            if (motor_id == 4) {  // Motor with thru beam sensor
                 // Stepping loop WITH thru beam monitoring
                 for (uint32_t step = 0; step < abs_steps; step++) {
                     // Check for thru beam trigger

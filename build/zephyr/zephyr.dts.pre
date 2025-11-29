@@ -2832,6 +2832,8 @@ arduino_spi: &spi1 {};
 / {
     zephyr,user {
         io-channels = <&adc1 1>;
+        io-channels = <&adc1 2>;
+        io-channels = <&adc1 3>;
 
     };
 
@@ -2840,19 +2842,12 @@ arduino_spi: &spi1 {};
         tach-input = &tach_input;
         heating-output = &heating_output;
     };
-
-    gpio_input: gpio_input {
-        compatible = "gpio-keys";
-        status = "okay";
-        tach_input: tach_ctrl_input {
-            gpios = <&gpioc 13 ((1 << 0) | (1 << 4))>;
-            label = "Tach Input";
-        };
-    };
-
+# 27 "./app.overlay"
     gpio_output: gpio_output {
         compatible = "gpio-leds";
         status = "okay";
+
+
         heating_output: heat_control {
             gpios = <&gpioc 14 (0 << 0)>;
             label = "Heating Control Pin";
@@ -2862,6 +2857,8 @@ arduino_spi: &spi1 {};
     fan_pwm_node {
         compatible = "pwm-leds";
         status = "okay";
+
+
         fan_pwm: fan_ctrl_pwm {
             pwms = <&pwm1 1 ((500) * 1000UL) (0 << 0)>;
             label = "Fan Control";
@@ -2879,10 +2876,11 @@ arduino_spi: &spi1 {};
 
 
     vref-mv = <3300>;
-# 59 "./app.overlay"
+# 68 "./app.overlay"
     pinctrl-0 = <&adc1_in1_pa1>;
     pinctrl-names = "default";
     status = "okay";
+
 
     channel@1 {
         reg = <1>;
@@ -2891,11 +2889,32 @@ arduino_spi: &spi1 {};
         zephyr,acquisition-time = <0>;
         zephyr,resolution = <12>;
     };
+
+
+
+    channel@2 {
+        reg = <2>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <0>;
+        zephyr,resolution = <12>;
+    };
+
+
+    channel@3 {
+        reg = <3>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <0>;
+        zephyr,resolution = <12>;
+    };
 };
-# 79 "./app.overlay"
+# 108 "./app.overlay"
 &timers1 {
     status = "okay";
     st,prescaler = <8399>;
+
+
 
     pwm1: pwm1 {
         compatible = "st,stm32-pwm";
@@ -2919,17 +2938,20 @@ arduino_spi: &spi1 {};
                <&gpiob 7 (1 << 0)>,
                <&gpiob 8 (1 << 0)>;
 
+
     drv8434s_1: drv8434s@0 {
         compatible = "spi-device";
         reg = <0>;
         spi-max-frequency = <1000000>;
     };
 
+
     drv8434s_2: drv8434s@1 {
         compatible = "spi-device";
         reg = <1>;
         spi-max-frequency = <1000000>;
     };
+
 
     drv8434s_3: drv8434s@2 {
         compatible = "spi-device";
