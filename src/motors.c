@@ -6,7 +6,7 @@
 static volatile bool thru_beam_triggered = false;
 
 // Motor command queue (one command per motor)
-static struct motor_command motor_commands[3] = {0};
+static struct motor_command motor_commands[4] = {0};
 
 // Mutex for motor command access
 K_MUTEX_DEFINE(motor_cmd_mutex);
@@ -26,10 +26,14 @@ K_THREAD_DEFINE(motor_thread_id, MOTOR_THREAD_STACK_SIZE,
 const struct device *spi_dev1;
 const struct device *spi_dev2;
 const struct device *spi_dev3;
+const struct device *spi_dev4;
+
 
 struct spi_config spi_cfg1;
 struct spi_config spi_cfg2;
 struct spi_config spi_cfg3;
+struct spi_config spi_cfg4;
+
 
 // Thru beam ISR (will need to configure and attach in init code)
 void thru_beam_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
@@ -53,6 +57,9 @@ int drv8434s_init(void) {
     spi_dev1 = spi_bus;
     spi_dev2 = spi_bus;
     spi_dev3 = spi_bus;
+    spi_dev4 = spi_bus;
+
+
     
     printk("SPI bus ready\n");
 
@@ -82,6 +89,16 @@ int drv8434s_init(void) {
         .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi1), cs_gpios, 2),
         .delay = 0,
     };
+
+    // Configure SPI settings for driver 4
+    spi_cfg4.frequency = 1000000;
+    spi_cfg4.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPHA | SPI_OP_MODE_MASTER;
+    spi_cfg4.slave = 3;
+    spi_cfg4.cs = (struct spi_cs_control){
+        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi4), cs_gpios, 0),
+        .delay = 0,
+    };
+
 
     printk("SPI configurations set\n");
     return 0;
@@ -195,6 +212,7 @@ static const struct device* get_motor_spi_dev(uint8_t motor_id) {
         case 1: return spi_dev1;
         case 2: return spi_dev2;
         case 3: return spi_dev3;
+        case 4: return spi_dev4;
         default: return NULL;
     }
 }
@@ -204,6 +222,7 @@ static struct spi_config* get_motor_spi_cfg(uint8_t motor_id) {
         case 1: return &spi_cfg1;
         case 2: return &spi_cfg2;
         case 3: return &spi_cfg3;
+        case 4: return &spi_cfg4;
         default: return NULL;
     }
 }
@@ -250,7 +269,7 @@ int motor_init_for_spi_stepping(uint8_t motor_id) {
 }
 // Public function to queue a motor movement
 int motor_move(uint8_t motor_id, int32_t steps, uint32_t speed_hz) {
-    if (motor_id < 1 || motor_id > 3) {
+    if (motor_id < 1 || motor_id > 4) {
         printk("Invalid motor ID: %d\n", motor_id);
         return -1;
     }
@@ -266,7 +285,7 @@ int motor_move(uint8_t motor_id, int32_t steps, uint32_t speed_hz) {
     k_mutex_lock(&motor_cmd_mutex, K_FOREVER);
     
     // Check if motor is already in use
-    // subtract 1 because motor_id is 1-3, but array index is 0-2
+    // subtract 1 because motor_id is 1-4, but array index is 0-3
     if (motor_commands[motor_id - 1].in_use) {
         // need to unlock before returning or the mutex stays locked forever (deadlock)
         k_mutex_unlock(&motor_cmd_mutex);
@@ -300,7 +319,7 @@ void motor_thread_entry(void *p1, void *p2, void *p3) {
         k_sem_take(&motor_sem, K_FOREVER);
         
         // Process all pending motor commands
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             // gets the lock to motor_cmd_mutex so it cant be processed by motor_move at the same time
             k_mutex_lock(&motor_cmd_mutex, K_FOREVER);
 
@@ -343,45 +362,14 @@ void motor_thread_entry(void *p1, void *p2, void *p3) {
             }
             drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val);
             
-            // steppingggg
-            // Check motor ID and use appropriate stepping loop
-            // below is for sachin's stirring motor
-            if (motor_id == 4) {  // Motor with thru beam sensor
-                // Stepping loop WITH thru beam monitoring
-                for (uint32_t step = 0; step < abs_steps; step++) {
-                    // Check for thru beam trigger
-                    if (thru_beam_triggered) {
-                        printk("Motor %d stopped by thru beam at step %d\n", motor_id, step);
-                        thru_beam_triggered = false;
-                        
-                        // Do exactly 4 more steps (this will change after testing)
-                        printk("Moving 4 additional steps\n");
-                        for (int j = 0; j < 4; j++) {
-                            // 0100 0000 = 0x40
-                            drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val | 0x40);
-                            k_usleep(1);
-                            drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val);
-                            k_usleep(step_delay_us);
-                        }
-                        
-                        break; 
-                    }
-                    
-                    // Normal step
-                    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val | 0x40);
-                    k_usleep(1);
-                    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val);
-                    k_usleep(step_delay_us);
-                }
-            } else {
-                // Stepping loop WITHOUT thru beam monitoring (motors 2 and 3)
-                for (uint32_t step = 0; step < abs_steps; step++) {
-                    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val | 0x40);
-                    k_usleep(1);
-                    drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val);
-                    k_usleep(step_delay_us);
-                }
+            // steppingggg loop
+            for (uint32_t step = 0; step < abs_steps; step++) {
+                drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val | 0x40);
+                k_usleep(1);
+                drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val);
+                k_usleep(step_delay_us);
             }
+            
             
              // releases lock for using spi
             k_mutex_unlock(&spi_mutex);

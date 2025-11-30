@@ -24,16 +24,21 @@
 extern const struct device *spi_dev1;
 extern const struct device *spi_dev2;
 extern const struct device *spi_dev3;
+extern const struct device *spi_dev4;
+extern const struct device *spi_dev5;
 
 extern struct spi_config spi_cfg1;
 extern struct spi_config spi_cfg2;
 extern struct spi_config spi_cfg3;
+extern struct spi_config spi_cfg4;
+extern struct spi_config spi_cfg5;
+
 
 extern struct k_mutex spi_mutex;
 
 // Motor command structure
 struct motor_command {
-    uint8_t motor_id;      // 1, 2, or 3
+    uint8_t motor_id;      // 1, 2, 3, 4, or 5
     int32_t steps;         // Positive = forward, negative = reverse
     uint32_t speed_hz;     // Steps per second
     bool in_use;           // Flag to indicate if command is active

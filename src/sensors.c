@@ -24,6 +24,8 @@ void read_strain_guage(){
 
 void read_limit_switch(){
     // return 1 if the limit switch detects the object
+
+
 }
 
 

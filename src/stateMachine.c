@@ -151,7 +151,7 @@ void main(void) {
         return;
     }
 
-    err = motors_init();
+    err = drv8434s_init();
     if (err < 0) {
         printk("Failed to init motors: %d\n", err);
         return;
