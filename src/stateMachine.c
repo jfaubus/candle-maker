@@ -104,7 +104,9 @@
 #include "state_machine.h"
 #include "heating.h"
 #include "cooling.h"
+#include "servos.h"
 
+//has an encoder
  #define SCENT_ID 1
  #define SCENT_STEPS 3200
  #define SCENT_SPEED 5
@@ -117,9 +119,9 @@
  #define STIR_STEPS 3200
  #define STIR_SPEED 5
 
- #define WICK_ID 4
- #define WICK_STEPS 3200
- #define WICK_SPEED 5
+ #define LEAD_SCREW_ID 4
+ #define LEAD_SCREW_STEPS 3200
+ #define LEAD_SCREW_SPEED 5
 
 
 K_MSGQ_DEFINE(state_msgq, sizeof(enum state), 10, 4);
@@ -157,6 +159,12 @@ void main(void) {
         return;
     }
 
+    err = door_lock_init();
+    if (err < 0) {
+        printk("Failed to init motors: %d\n", err);
+        return;
+    }
+
     
     while (1) {
         // Check E-stop first
@@ -171,6 +179,7 @@ void main(void) {
             case IDLE:
                 printk("Waiting for button press...\n");
                 //*************Button_pressed() < 2 sec ? 1 : 0 ******************/
+                // NEED BUTTON DEBOUNCING *****************************************
                 if (button_pressed()) {
                     machine.current = INIT_CHECK;
                 }
@@ -192,11 +201,20 @@ void main(void) {
                 //*****************NEED TO MAKE THESE FUNCTIONS *********/
                 if (read_strain_gauge() && read_limit_switch()) {
                     printk("Checks passed!\n");
+                    door_lock();
                     machine.current = WAX_DISPENSE;
-                } else {
+                } else if (!read_strain_guage() && read_limit_switch()){
+                    //CONTINOUSLY POLL UNTIL USER PLACES THE CANDLE
+                    //THEN:
+                    door_lock();
+                    machine.current = WAX_DISPENSE;
+                }
+                
+                else {
                     printk("Check failed, returning to IDLE (for now but later this will send a message to the screen with the error and prompt them to press the button again\n");
                     machine.current = IDLE;
                 }
+                // ALSO CLOSE THE SERVO TO STOP THE DOOR
 
                 break;
                 
@@ -244,13 +262,14 @@ void main(void) {
             case STIRRING:
                 printk("stirring the wax");
                 motor_move(STIR_ID, STIR_STEPS, STIR_SPEED);
+                motor_move(STIR_ID, STIR_STEPS, STIR_SPEED);
                 machine.current = WICK_INSERT;
                 break;
 
             case WICK_INSERT:
                 printk("starting the wick insert");
                 //*******SACHIN SPECIAL CASE **************************************/
-                motor_move(WICK_ID, WICK_STEPS, WICK_SPEED);
+                //motor_move(WICK_ID, WICK_STEPS, WICK_SPEED);
                 //STOP WHEN SENSOR REACHES POSITION
                 //MOVE THE MOTOR A LITTLE MORE
                 machine.current = COOLING;
