@@ -204,47 +204,46 @@ void main(void) {
             case INIT_CHECK:
                 //DISPLAY: INIT STATE
                 printk("Checking sensors...\n");
-                set_status_led(1); //TURNS ON FOR NOW -> WILL NEED SLOW BLINKING LATER
+                set_status_led(1); //TURNS ON FOR NOW -> WILL NEED SLOW BLINKING LATER*************************
                
                 //if door closed, lock door
                 if (read_limit_switch()) {
-                    err = door_lock();
-                    if (err < 0) {
-                        printk("Failed to use lock door servo: %d\n", err);
-                        machine.current = ESTOP;
-                        break;
-                    }
-                    printk("Checks passed!\n");
-                    machine.current = HEATING;
+                    printk("Door closed!\n");
+
                 } 
                 else {
                     printk("Door not closed\n");
                     // DISPLAY: PLEASE CLOSE DOOR
-                    while (!read_limit_switch()){
-                         k_msleep(10);
+                    int timeout_count = 0;
+                    while (!read_limit_switch()) {
+                        k_msleep(500);
+            
+                    if (++timeout_count > 120) {  // 60 second timeout (120 * 500ms)
+                        printk("Door timeout returning to IDLE to prevent infinite loop\n");
+                        machine.current = IDLE;
+                        goto next_iteration;
+                        //cant just do break because wed just be breaking this while loop not the case
                     }
-                    err = door_lock();
+                }
+                }
+                // now that the door is closed, lock the door
+                err = door_lock();
                     if (err < 0) {
                         printk("Failed to use lock door servo: %d\n", err);
                         machine.current = ESTOP;
                         break;
                     }
-                    machine.current = HEATING;
-                }
-
+                machine.current = HEATING;
                 break;
                 
             
             case HEATING:
                 // DISPLAY: BEGIN HEATING
-                { // need to put this in curly brackets so err is only in scope in this case/state
-                int err;
                 err = set_heating(1);
                 if (err < 0) {
                     printk("Failed to set heating pin: %d\n", err);
                     machine.current = ESTOP;
                     break;
-                }
                 }
                 machine.current = WAX_DISPENSE;
                  
@@ -260,21 +259,24 @@ void main(void) {
                     break;
                 }
 
-                // Read temp directly when needed
-                machine.current_temp = get_current_temp();
-                printk("Heating... Current: %.1f°C\n", machine.current_temp);
-                //************NEED TO DECIDE TARFET TEMP (define in heater.h)-> talk to ty
-                if (machine.current_temp >= TARGET_TEMP) {
-                    set_heating(0);
-                    printk("Target temp reached is reached -Next state: scent\n");
-                    machine.current = SCENT_DISPENSE;
-                }
+                machine.current = WAIT_FOR_TEMP;
+                break;
 
-                machine.current = SCENT_DISPENSE;
+            case WAIT_FOR_TEMP:
+                machine.current_temp = get_current_temp();
+                printk("Waiting for temp to reach target %.1f°C / %.1f°C\n", machine.current_temp, TARGET_TEMP);
+    
+                if (machine.current_temp >= TARGET_TEMP) {
+                // Turn off heater and move to next state
+                set_heating(0);
+                 machine.current = SCENT_DISPENSE;
+                }
+                // If temp not reached, state stays as WAIT_FOR_TEMP
                 break;
                 
 
             case SCENT_DISPENSE:
+                // DISPLAY: SCENT DISPENSE
                 printk("dispensing scent");
                 if(machine.wash_cycle == 1){
                      err = motor_move(SCENT_ID, SCENT_STEPS + 3200, SCENT_SPEED);
@@ -291,6 +293,7 @@ void main(void) {
                 break;
 
             case STIRRING:
+                // DISPLAY: STIRRING STATE
                 printk("stirring the wax");
                 // lowers stirring mechanism
                 err = motor_move(LEAD_SCREW_ID, LEAD_SCREW_STEPS, LEAD_SCREW_SPEED);
@@ -312,9 +315,9 @@ void main(void) {
 
 
             case WICK_INSERT:
+                // DISPLAY: WICK INSERT STATE
                 printk("starting the wick insert");
                 //turn off heating element
-                int err;
                 err = set_heating(0);
                 if (err < 0) {
                     printk("Failed to set heating pin: %d\n", err);
@@ -336,7 +339,7 @@ void main(void) {
 
             case COOLING:
                 printk("Starting cooling process");
-
+                //DISPLAY: COOLING STATE
                 // start fan
                 start_cooling();
                 // WHEN TEMP REACHED/X AMOUNT OF TIME PASSED**** NEED TO TEST
@@ -350,24 +353,42 @@ void main(void) {
                 
             case ENDSTATE:
                     printk("Candle  complete\n");
-                    // whatever happens at the end -> unlock doorx + success message
+                    // any error checking??
+                    // DISPLAY: SUCESSS MESSAGE
+                    err = door_unlock();
+                        if (err < 0) {
+                        printk("Failed to unlock door: %d\n", err);
+                    }
+                    // Reset this flag
+                    machine.wash_cycle = false;
                     machine.current = IDLE;  // Return to idle
                     break;
                 
             case ESTOP:
                 // save any current state taht are important? Maybe save current state and then see if something needs to be done
                 //          -main one i can think of is sachins motors just dont wnat it to over a hole
+
+
+
+                 // Stop everything 
+                 // NEED TO STOP SERVOS****************************************************
                 stop_all_motors();
                 set_heating(0);
                 stop_cooling();
-                printk("E-STOP - System STOP \n");
-                // Wait for manual reset
-                while(1) {
-                    k_msleep(1000);
-                }
+                // DISPLAY: EMERGENCY STOP- press button to reset
+                
+                printk("System halted. Press button to reset.\n");
+                wait_for_button_press();
+                
+                // Reset and return to IDLE
+                machine.wash_cycle = false;
+                machine.current = IDLE;
+                printk("System reset return to IDLE\n");
                 break;
         }
+        next_iteration:
+            k_msleep(100);  // Runs state machine at 10Hz
+
         
-        k_msleep(100);  // Run state machine at 10Hz
     }
 }

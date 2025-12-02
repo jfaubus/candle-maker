@@ -87,7 +87,7 @@ int door_lock(void) {
     }
     
     printk("Door locked\n");
-    k_msleep(500);  // Waits for servo to move
+    k_msleep(500);  // Wait for servo to move*************************************************MIGHT CHANGE
     return 0;
 }
 
@@ -103,7 +103,7 @@ int door_unlock(void) {
     }
     
     printk("Door unlocked\n");
-    k_msleep(500);  // Wait for servo to move
+    k_msleep(500);  // Wait for servo to move*************************************************MIGHT CHANGE
     return 0;
 }
 
@@ -138,7 +138,7 @@ int move_wick_servo(void){
         printk("Through-beam detected, doing extra rotations for the hole\n");
         
         // Continue for extra rotations to cover the hole
-        k_msleep(500);  // THIS WILL CHANGE WITH TESTING*****************************************
+        k_msleep(500);  // Wait for servo to move*************************************************MIGHT CHANGE
         
         // Stop the servo (1.5ms pulse = stopped for continuous rotation)
         pulse_us = 1500;
