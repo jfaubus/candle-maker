@@ -116,11 +116,11 @@
 
 K_MSGQ_DEFINE(state_msgq, sizeof(enum state), 10, 4);
 
+
 struct machine_state {
     enum state current;
     uint32_t encoder_counts;
     float current_temp;
-    bool estop_flag;
     bool wash_cycle;
 };
 
@@ -130,6 +130,8 @@ struct machine_state {
 void main(void) {
     struct machine_state machine = {.current = IDLE};
     
+    // temp safety monitoring thread starts in heating.c at startup
+
     int err;
     err = heating_init();
     if (err < 0) {
@@ -161,23 +163,17 @@ void main(void) {
         return;
     }
 
+
     while (1) {
-        // Check E-stop first
-        if (machine.estop_flag) {
-            //***************IDK WHAT TO DO ABOUT THIS FUNCTION... *************/
-            handle_estop(&machine);
-            continue;
-        }
-        
+
         // Simple state execution
         switch(machine.current) {
             case IDLE:
+                //DISPLAY: IDLE STATE
                 printk("Waiting for button press...\n");
                 //*************Button_pressed() < 2 sec ? 1 : 0 ******************/
-                // NEED BUTTON DEBOUNCING? *****************************************
-                while (!wait_for_button_press){
-                    k_msleep(10);
-                }
+                // wait for button press
+                wait_for_button_press();
                 //WHEN BUTTON IS PRESSED, WAIT FOR BUTTON TO NO LONGER BE PRESSED AND THEN:**************
                 // if press less than 2000ms
                 if (get_button_press_duration() <= 2000) {
@@ -191,88 +187,149 @@ void main(void) {
                 
             case WASH_CYCLE:
                 printk("Wash cycle starting...");
-                // motor_move in daisy_chained.c
+                //DISPLAY: WASH CYCLE
+                set_status_led(1); //TURNS ON FOR NOW -> WILL NEED FAST BLINKING LATER
+                //display instructions
+                // wait for user to press the start button again
+                wait_for_button_press();
+
                 motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
+                
                 machine.wash_cycle = 1;
+                set_status_led(0); //TURNS OFF FOR NOW
+
                 machine.current = IDLE;
                 break;
                 
             case INIT_CHECK:
+                //DISPLAY: INIT STATE
                 printk("Checking sensors...\n");
-                //*****************NEED TO MAKE THESE FUNCTIONS *********/
-                if (read_strain_gauge() && read_limit_switch()) {
+                set_status_led(1); //TURNS ON FOR NOW -> WILL NEED SLOW BLINKING LATER
+               
+                //if door closed, lock door
+                if (read_limit_switch()) {
+                    err = door_lock();
+                    if (err < 0) {
+                        printk("Failed to use lock door servo: %d\n", err);
+                        machine.current = ESTOP;
+                        break;
+                    }
                     printk("Checks passed!\n");
-                    door_lock();
-                    machine.current = WAX_DISPENSE;
-                } else if (!read_strain_guage() && read_limit_switch()){
-                    //CONTINOUSLY POLL UNTIL USER PLACES THE CANDLE
-                    //THEN:
-                    door_lock();
-                    machine.current = WAX_DISPENSE;
-                }
-                
+                    machine.current = HEATING;
+                } 
                 else {
-                    printk("Check failed, returning to IDLE (for now but later this will send a message to the screen with the error and prompt them to press the button again\n");
-                    machine.current = IDLE;
+                    printk("Door not closed\n");
+                    // DISPLAY: PLEASE CLOSE DOOR
+                    while (!read_limit_switch()){
+                         k_msleep(10);
+                    }
+                    err = door_lock();
+                    if (err < 0) {
+                        printk("Failed to use lock door servo: %d\n", err);
+                        machine.current = ESTOP;
+                        break;
+                    }
+                    machine.current = HEATING;
                 }
-                // ALSO CLOSE THE SERVO TO STOP THE DOOR
 
                 break;
                 
-            case WAX_DISPENSE:
-                printk("Dispensing wax...\n");
-                motor_move(WAX_ID, WAX_STEPS, WAX_SPEED);
-                machine.current = HEATING;
-                break;
-                
+            
             case HEATING:
-
-            //call function in Heating to set this pin high
-                { // need to put this in curly brackets so err is only in scope in this switch case
+                // DISPLAY: BEGIN HEATING
+                { // need to put this in curly brackets so err is only in scope in this case/state
                 int err;
                 err = set_heating(1);
                 if (err < 0) {
-                printk("Failed to set heating pin: %d\n", err);
-                return err;
+                    printk("Failed to set heating pin: %d\n", err);
+                    machine.current = ESTOP;
+                    break;
                 }
+                }
+                machine.current = WAX_DISPENSE;
+                 
+                break;
+
+            case WAX_DISPENSE:
+                // DISPLAY: WAX DISPENSE
+                printk("Dispensing wax...\n");
+                err = motor_move(WAX_ID, WAX_STEPS, WAX_SPEED);
+                if (err < 0) {
+                    printk("Failed to move wax dispendsing motor: %d\n", err);
+                    machine.current = ESTOP;
+                    break;
                 }
 
-                 // Read temp directly when needed
+                // Read temp directly when needed
                 machine.current_temp = get_current_temp();
                 printk("Heating... Current: %.1f°C\n", machine.current_temp);
                 //************NEED TO DECIDE TARFET TEMP (define in heater.h)-> talk to ty
                 if (machine.current_temp >= TARGET_TEMP) {
-                    //gpio_pin_set(heating_element, 0);
                     set_heating(0);
                     printk("Target temp reached is reached -Next state: scent\n");
                     machine.current = SCENT_DISPENSE;
                 }
+
+                machine.current = SCENT_DISPENSE;
                 break;
+                
 
             case SCENT_DISPENSE:
                 printk("dispensing scent");
                 if(machine.wash_cycle == 1){
-                     motor_move(SCENT_ID, SCENT_STEPS + 3200, SCENT_SPEED);
+                     err = motor_move(SCENT_ID, SCENT_STEPS + 3200, SCENT_SPEED);
                 }
                 else{
-                     motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
+                     err = motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
+                }
+                if (err < 0) {
+                    printk("Failed to move scent dispensing motor: %d\n", err);
+                    machine.current = ESTOP;
+                    break;
                 }
                 machine.current = STIRRING;
                 break;
 
             case STIRRING:
                 printk("stirring the wax");
-                motor_move(STIR_ID, STIR_STEPS, STIR_SPEED);
-                motor_move(STIR_ID, STIR_STEPS, STIR_SPEED);
+                // lowers stirring mechanism
+                err = motor_move(LEAD_SCREW_ID, LEAD_SCREW_STEPS, LEAD_SCREW_SPEED);
+                if (err < 0) {
+                    printk("Failed to move lead screw motor: %d\n", err);
+                    machine.current = ESTOP;
+                    break;
+                }
+                // starts stirring mechanism
+                err = motor_move(STIR_ID, STIR_STEPS, STIR_SPEED);
+                if (err < 0) {
+                    printk("Failed to move stirring motor: %d\n", err);
+                    machine.current = ESTOP;
+                    break;
+                }
                 machine.current = WICK_INSERT;
                 break;
 
+
+
             case WICK_INSERT:
                 printk("starting the wick insert");
-                //*******SACHIN SPECIAL CASE **************************************/
-                //motor_move(WICK_ID, WICK_STEPS, WICK_SPEED);
-                //STOP WHEN SENSOR REACHES POSITION
-                //MOVE THE MOTOR A LITTLE MORE
+                //turn off heating element
+                int err;
+                err = set_heating(0);
+                if (err < 0) {
+                    printk("Failed to set heating pin: %d\n", err);
+                    machine.current = ESTOP;
+                    break;
+                }
+                //drop the wick 
+                err = move_wick_servo();
+                if (err < 0) {
+                    printk("Failed to start wick servo: %d\n", err);
+                    machine.current = ESTOP;
+                    break;
+                }
+                
+            
                 machine.current = COOLING;
                 break;
             

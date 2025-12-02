@@ -47,6 +47,9 @@ int drv8434s_init(void) {
     
     // Gets the SPI bus device (not the individual driver nodes)
     const struct device *spi_bus = DEVICE_DT_GET(DT_NODELABEL(spi1));
+
+
+    
     
     if (!device_is_ready(spi_bus)) {
         printk("ERROR: SPI1 bus not ready!\n");
@@ -99,6 +102,10 @@ int drv8434s_init(void) {
         .delay = 0,
     };
 
+    // initializing semaphore that blocks state machine until the motor is done being moved
+    for (int i = 0; i < 4; i++) {
+    k_sem_init(&motor_commands[i].completion_sem, 0, 1);
+    }
 
     printk("SPI configurations set\n");
     return 0;
@@ -306,7 +313,12 @@ int motor_move(uint8_t motor_id, int32_t steps, uint32_t speed_hz) {
     // Wake up motor thread to process new command
     k_sem_give(&motor_sem);
     
-    printk("Motor %d: queued %d steps at %d Hz\n", motor_id, steps, speed_hz);
+     printk("Motor %d: queued %d steps at %d Hz\n", motor_id, steps, speed_hz);
+     printk("blocking until motors are finished moving");
+    // blocks main state machine until motors are finished
+    k_sem_take(&motor_commands[motor_id - 1].completion_sem, K_FOREVER);
+
+   
     return 0;
 }
 
@@ -380,6 +392,10 @@ void motor_thread_entry(void *p1, void *p2, void *p3) {
             k_mutex_unlock(&motor_cmd_mutex);
             
             printk("Motor %d: movement complete\n", motor_id);
+            // motors are done, free the state machine
+            k_sem_give(&motor_commands[i].completion_sem);
+
+            
         }
     }
 }

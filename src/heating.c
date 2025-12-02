@@ -36,7 +36,7 @@ K_THREAD_DEFINE(temp_thread_id, TEMPTHREAD_STACK_SIZE,
                 TEMPTHREAD_PRIORITY, 0, 0);
 
 // function to toggle the heating element pin high or low
-int set_heating(int stat){
+int set_heating(uint16_t stat){
     int err;
     err = gpio_pin_set_dt(&heating_spec, stat);
     if (err < 0){
@@ -113,9 +113,9 @@ void temp_safety_thread(void *p1, void *p2, void *p3)
     while (1) {
         // cast the return to a float
         current_temp = (float)read_thermistor_temp();
-        if (temp > MAX_SAFE_TEMP) {
+        if (current_temp > MAX_SAFE_TEMP) {
             gpio_pin_set_dt(&heating_spec, 0);
-            printk("Overheat detected: %.1f°C\n", temp);
+            printk("Overheat detected: %.1f°C\n", current_temp);
             // TODO: Set estop flag somehow?
         }
         k_msleep(100);
