@@ -5,5 +5,5 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(candle-maker)
 
 target_sources(app PRIVATE 
-    src/heating.c
+    src/flashingtest.c
 )

@@ -2839,10 +2839,11 @@ arduino_spi: &spi1 {};
 
     aliases {
         pwm-led0 = &fan_pwm;
-        tach-input = &tach_input;
+
         heating-output = &heating_output;
+        testing-output = &testing_output;
     };
-# 27 "./app.overlay"
+# 28 "./app.overlay"
     gpio_output: gpio_output {
         compatible = "gpio-leds";
         status = "okay";
@@ -2852,11 +2853,16 @@ arduino_spi: &spi1 {};
             gpios = <&gpioc 14 (0 << 0)>;
             label = "Heating Control Pin";
         };
+
+        testing_output: testing_conrol {
+            gpios = <&gpiob 9 (0 << 0)>;
+            label = "Testing Flash Pin";
+        };
     };
 
     fan_pwm_node {
         compatible = "pwm-leds";
-        status = "okay";
+        status = "disabled";
 
 
         fan_pwm: fan_ctrl_pwm {
@@ -2876,10 +2882,10 @@ arduino_spi: &spi1 {};
 
 
     vref-mv = <3300>;
-# 68 "./app.overlay"
+# 74 "./app.overlay"
     pinctrl-0 = <&adc1_in1_pa1>;
     pinctrl-names = "default";
-    status = "okay";
+    status = "disabled";
 
 
     channel@1 {
@@ -2909,27 +2915,31 @@ arduino_spi: &spi1 {};
         zephyr,resolution = <12>;
     };
 };
-# 108 "./app.overlay"
+# 114 "./app.overlay"
 &timers1 {
-    status = "okay";
+    status = "disabled";
     st,prescaler = <8399>;
 
 
 
     pwm1: pwm1 {
         compatible = "st,stm32-pwm";
-        status = "okay";
+        status = "disabled";
         pinctrl-0 = <&tim1_ch1_pa8>;
         pinctrl-names = "default";
         #pwm-cells = <3>;
     };
+
+
+
+
 };
 
 
 
 
 &spi1 {
-    status = "okay";
+    status = "disabled";
     pinctrl-0 = <&spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pa7>;
     pinctrl-names = "default";
 

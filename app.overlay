@@ -8,8 +8,9 @@
 
     aliases {
         pwm-led0 = &fan_pwm;
-        tach-input = &tach_input;
+        //tach-input = &tach_input;
         heating-output = &heating_output;
+        testing-output = &testing_output;
     };
 
     /* 
@@ -33,17 +34,38 @@
             gpios = <&gpioc 14 GPIO_ACTIVE_HIGH>;
             label = "Heating Control Pin";
         };
+
+        testing_output: testing_control {
+            gpios = <&gpiob 9 GPIO_ACTIVE_HIGH>;
+            label = "Testing Flash Pin";
+        };
+
+        gpio_thru_beam: break_beam@0 {
+            gpios = <&gpioc 13 GPIO_ACTIVE_LOW>; 
+            label = "Break Beam Pin";
+};
     };
 
     fan_pwm_node {
         compatible = "pwm-leds";
-        status = "okay";
+        status = "disabled";
 
         // pwm to control the fan speed (will need to add x amount more for x fans)
         fan_pwm: fan_ctrl_pwm {
             pwms = <&pwm1 1 PWM_USEC(500) PWM_POLARITY_NORMAL>;
             label = "Fan Control";
         };
+
+        pwm_door: door_ctrl_pwm {
+             pwms = <&pwm2 1 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+             label = "Door servo Control";
+        };
+
+        pwm_wick: pwm@1 {
+            pwms = <&pwm2 2 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+            label = "Wick servo Control";
+        };
+
     };
 };
 
@@ -67,7 +89,7 @@
 
     pinctrl-0 = <&adc1_in1_pa1>;
     pinctrl-names = "default";
-    status = "okay";
+    status = "disabled";
     
     // adc channel 1 for thermistor 
     channel@1 {
@@ -106,25 +128,29 @@
 
 // Timer 1 for fan pwm
 &timers1 {
-    status = "okay";
+    status = "disabled";
     st,prescaler = <8399>;  
     
 
     // Timer 1 for fan 1 pwm
     pwm1: pwm1 {
         compatible = "st,stm32-pwm";
-        status = "okay";
+        status = "disabled";
         pinctrl-0 = <&tim1_ch1_pa8>; // TIM1_CH1 → PA8
         pinctrl-names = "default";
         #pwm-cells = <3>; 
     };
+
+    // ADD PWM FOR WICK SERVO
+
+    // ADD PWM FOR DOOR SERVO
 };
 
 
 
 
 &spi1 {
-    status = "okay";
+    status = "disabled";
     pinctrl-0 = <&spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pa7>;
     pinctrl-names = "default";
     

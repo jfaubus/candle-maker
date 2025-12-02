@@ -105,6 +105,7 @@
 #include "heating.h"
 #include "cooling.h"
 #include "servos.h"
+#include "sensors.h"
 
 //has an encoder
  #define SCENT_ID 1
