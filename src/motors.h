@@ -42,6 +42,7 @@ struct motor_command {
     int32_t steps;         // Positive = forward, negative = reverse
     uint32_t speed_hz;     // Steps per second
     bool in_use;           // Flag to indicate if command is active
+    struct k_sem completion_sem; 
 };
 
 
@@ -61,6 +62,8 @@ int drv8434s_read_reg(const struct device *spi_dev,
                       const struct spi_config *spi_cfg,
                       uint8_t reg,
                       uint8_t *value);
+// stops all motors -> for estop
+void stop_all_motors(void);
 
 #endif // MOTORS_H
 

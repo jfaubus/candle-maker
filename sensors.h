@@ -21,7 +21,7 @@ bool button_pressed(void);
 int64_t get_button_press_duration(void);
 
 // wait for a button press with timeout (call this while waiting in idle)
-bool wait_for_button_press(int32_t timeout_ms);
+bool wait_for_button_press();
 
 
 #endif

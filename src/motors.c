@@ -399,3 +399,19 @@ void motor_thread_entry(void *p1, void *p2, void *p3) {
         }
     }
 }
+
+// stops all motors -> for estop
+void stop_all_motors(void) {
+    k_mutex_lock(&motor_cmd_mutex, K_FOREVER);
+    
+    // clears all pending motor commands
+    for (int i = 0; i < 4; i++) {
+        motor_commands[i].in_use = false;
+        // signal any blocked motor_move() calls to return
+        k_sem_give(&motor_commands[i].completion_sem);
+    }
+    
+    k_mutex_unlock(&motor_cmd_mutex);
+    
+    printk("All motors stopped (estop?)\n");
+}

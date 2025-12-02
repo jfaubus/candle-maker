@@ -14,5 +14,4 @@ void start_cooling(void);
 void stop_cooling(void);
 
 
-
 #endif

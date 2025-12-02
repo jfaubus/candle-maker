@@ -64,14 +64,9 @@ int sensors_init(void)
         printk("Failed to configure limit switch: %d\n", ret);
         return ret;
     }
-    
-    // Configure through-beam GPIO as input
-    if (!gpio_is_ready_dt(&thru_beam)) {
-        printk("Through-beam GPIO not ready\n");
-        return -1;
-    }
 
-    ret = gpio_pin_configure_dt(&status_led, GPIO_PULL_UP);
+
+    ret = gpio_pin_configure_dt(&status_led, GPIO_OUTPUT_INACTIVE);
     if (ret < 0){
         printk("failed to configure led status led: %d\n", ret);
         return ret;
@@ -125,8 +120,8 @@ int64_t get_button_press_duration(void)
     return button_state.press_duration_ms;
 }
 
-// wait for a button press with timeout (call this while waiting in idle)
-bool wait_for_button_press(int32_t timeout_ms)
+// wait for a button press (call this while waiting in idle)
+bool wait_for_button_press()
 {
     while (!button_state.is_pressed) {
         k_msleep(10);
