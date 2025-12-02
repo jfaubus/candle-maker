@@ -1,21 +1,10 @@
 /*
  * TODO:
- * motor driver daisy chain
  * encoder
- * sachins sensor
  * processing thermistor and tach input
- * limit switch
  * sending UI messages (add message queue put in between state transitions)
- * 
- * This weekend: 
- *      -state diagram frame (at least confirm each state is being entered using print messages and you can 
- *          simulate the encoder confirming x amount of turns by just starting the state and doing whatever you need to 
- *          do to get to the state after)
- *          -can you simulate estop? talk to nikki about what happens in estop state
- *      -motor driver daisy chain (test)
- *      -encoder
- *      -if you get the chance: limit swicth and sachins sensor
- * 
+ * talk to nikki about what happens in estop state
+ * motor driver  (testing)
  *      
 */
 
@@ -166,7 +155,12 @@ void main(void) {
         return;
     }
 
-    
+    err = sensors_init();
+    if (err < 0){
+        printk("Failed to initialize the limit switch and/or the start button %d\n", err);
+        return;
+    }
+
     while (1) {
         // Check E-stop first
         if (machine.estop_flag) {
@@ -180,11 +174,17 @@ void main(void) {
             case IDLE:
                 printk("Waiting for button press...\n");
                 //*************Button_pressed() < 2 sec ? 1 : 0 ******************/
-                // NEED BUTTON DEBOUNCING *****************************************
-                if (button_pressed()) {
+                // NEED BUTTON DEBOUNCING? *****************************************
+                while (!wait_for_button_press){
+                    k_msleep(10);
+                }
+                //WHEN BUTTON IS PRESSED, WAIT FOR BUTTON TO NO LONGER BE PRESSED AND THEN:**************
+                // if press less than 2000ms
+                if (get_button_press_duration() <= 2000) {
                     machine.current = INIT_CHECK;
                 }
-                else if (!button_pressed()) {
+                // if pressed greater than 200ms
+                else if (get_button_press_duration() > 2000) {
                     machine.current = WASH_CYCLE;
                 }
                 break;

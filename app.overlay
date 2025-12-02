@@ -8,22 +8,18 @@
 
     aliases {
         pwm-led0 = &fan_pwm;
+        pwm-led1 = &pwm_door;
+        pwm-led2 = &pwm_wick;
         //tach-input = &tach_input;
         heating-output = &heating_output;
         testing-output = &testing_output;
+        limit-sw = &limit_switch_gpio;
+        start-btn = &start_button_gpio;
+        thru-beam = &gpio_thru_beam;
+        status-led = &gpio_status_led;
+
+        
     };
-
-    /* 
-    gpio_input: gpio_input {
-        compatible = "gpio-keys";
-        status = "okay";
-
-        // gpio pin for the tach (deleting because we need analog not digital)
-        tach_input: tach_ctrl_input {
-            gpios = <&gpioc 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-            label = "Tach Input";
-        };
-    };*/
 
     gpio_output: gpio_output {
         compatible = "gpio-leds";
@@ -43,7 +39,23 @@
         gpio_thru_beam: break_beam@0 {
             gpios = <&gpioc 13 GPIO_ACTIVE_LOW>; 
             label = "Break Beam Pin";
-};
+        };
+
+        limit_switch_gpio: limit_switch {
+            gpios = <&gpioc 0 GPIO_ACTIVE_LOW>;
+            label = "Limit Switch Pin";
+        };
+
+        start_button_gpio: start_button {
+            gpios = <&gpioc 1 GPIO_ACTIVE_LOW>; 
+            label = "Start Button Pin";
+        };
+
+        gpio_status_led: status_led {
+            gpios = <&gpioc 2 GPIO_ACTIVE_LOW>; 
+            label = "Status LED Pin";
+        }
+
     };
 
     fan_pwm_node {

@@ -2,15 +2,19 @@
 // need to add break beam gpio in the device tree
 // need to put in sachins motor special case with the ISR and message queue + extra rotations to cover the hole
 
+// something to keep in mind:
+// When working with edge-triggered interrupts, some common problems include:
+// False triggers (glitches): High-speed processors can detect very short glitches or noise as edges. 
+// Hardware or software debouncing might be necessary.
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/pwm.h>
 #include "servos.h"
 
 // door servo PWM
-static const struct pwm_dt_spec door_servo = PWM_DT_SPEC_GET(DT_ALIAS(door_servo));
+static const struct pwm_dt_spec door_servo = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led1));
 // wick servo PWM
-static const struct pwm_dt_spec wick_servo = PWM_DT_SPEC_GET(DT_ALIAS(wick_servo));
+static const struct pwm_dt_spec wick_servo = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led2));
 // thru beam GPIO
 static const struct gpio_dt_spec thru_beam = GPIO_DT_SPEC_GET(DT_ALIAS(thru_beam), gpios);
 static struct gpio_callback thru_beam_cb_data;
@@ -21,15 +25,20 @@ K_MSGQ_DEFINE(wick_msgq, sizeof(uint8_t), 1, 1);
 
 void thru_beam_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
-    // POST MESSAGE QUEUE TO STOP SERVO MOTOR
-    uint8_t stop_msg = 1;
-    // Post to message queue (non-blocking from ISR)
-    k_msgq_put(&wick_msgq, &stop_msg, K_NO_WAIT);
-    printk("Through-beam triggered!\n");
+    // Simple debounce - verify beam is still broken
+    k_busy_wait(1000);  // Wait 1ms (use k_busy_wait in ISR, not k_msleep)
+    //k_msleep will try to sleep the current thread but an ISR is not a thread, kernel will panic
+    
+    if (gpio_pin_get_dt(&thru_beam) == 0) {  // makes sure its still broken 
+        // POST MESSAGE QUEUE TO STOP SERVO MOTOR
+        uint8_t stop_msg = 1;
+        k_msgq_put(&wick_msgq, &stop_msg, K_NO_WAIT);
+        printk("Through-beam triggered!\n");
+    }
 }
 
 
-int door_lock_init(void) {
+    int door_lock_init(void) {
     if (!device_is_ready(door_servo.dev)) {
         printk("Door servo PWM not ready\n");
         return -1;
@@ -41,23 +50,26 @@ int door_lock_init(void) {
         return -1;
     }
 
+    if (!gpio_is_ready_dt(&thru_beam)) {
+        printk("Through-beam GPIO not ready\n");
+        return -1;
+    }
+
+
+    // Set up interrupt on falling edge (beam broken) 
+    // falling edge because break beam is active low
+    int err = gpio_pin_interrupt_configure_dt(&thru_beam, GPIO_INT_EDGE_FALLING); 
+    if (err < 0) { 
+        printk("Failed to configure through-beam interrupt: %d\n", err); 
+        return err; } 
+        // Initialize callback 
+        // arg1: pointer to the gpio_callback struct, arg2: handler function, arg3: pin mask -> a bit mask for the relavant pin
+        gpio_init_callback(&thru_beam_cb_data, thru_beam_isr, BIT(thru_beam.pin)); 
+        // arg1: pointer to the device structure for the specific GPIO driver instance, arg2: callback -> pointer to the gpio_callback struct
+        gpio_add_callback(thru_beam.port, &thru_beam_cb_data);
+
     printk("Servos (for wick and door) initialized\n");
     return 0;
-
-
-
-
-// Set up interrupt on falling edge (beam broken) 
-// falling edge because break beam is active low
-err = gpio_pin_interrupt_configure_dt(&thru_beam, GPIO_INT_EDGE_FALLING); 
-if (err < 0) { 
-    printk("Failed to configure through-beam interrupt: %d\n", err); 
-    return err; } 
-    // Initialize callback 
-    // arg1: pointer to the gpio_callback struct, arg2: handler function, arg3: pin mask -> a bit mask for the relavant pin
-    gpio_init_callback(&thru_beam_cb_data, thru_beam_isr, BIT(thru_beam.pin)); 
-    // arg1: pointer to the device structure for the specific GPIO driver instance, arg2: callback -> pointer to the gpio_callback struct
-    gpio_add_callback(thru_beam.dev, &thru_beam_cb_data);
 
 }
 
