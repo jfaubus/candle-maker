@@ -1,15 +1,15 @@
 / {
     zephyr,user {
-        io-channels = <&adc1 1>;
-        io-channels = <&adc1 2>;
-        io-channels = <&adc1 3>;
+        //io-channels = <&adc1 1>, io-channels = <&adc1 2>, io-channels = <&adc1 3>;
         //gpios = <&gpioc 14 GPIO_ACTIVE_HIGH>; // use this later for heater gpio
+        io-channels = <&adc1 10>;
     };
 
     aliases {
-        pwm-led0 = &fan_pwm;
-        pwm-led1 = &pwm_door;
-        pwm-led2 = &pwm_wick;
+        pwm-fan1 = &fan_pwm1;
+        pwm-fan2 = &fan_pwm2;
+        pwm-door = &pwm_door;
+        pwm-wick = &pwm_wick;
         //tach-input = &tach_input;
         heating-output = &heating_output;
         testing-output = &testing_output;
@@ -17,6 +17,8 @@
         start-btn = &start_button_gpio;
         thru-beam = &gpio_thru_beam;
         status-led = &gpio_status_led;
+        gpio-tach1 = &gpio_tach1;
+        gpio-tach2 = &gpio_tach2;
 
         
     };
@@ -27,56 +29,91 @@
 
         // gpio to control the heating element switch
         heating_output: heat_control {
-            gpios = <&gpioc 14 GPIO_ACTIVE_HIGH>;
+            gpios = <&gpiob 4 GPIO_ACTIVE_HIGH>;
             label = "Heating Control Pin";
         };
-
+        //DELETE AFTER TESTING****************************************************************************
         testing_output: testing_control {
             gpios = <&gpiob 9 GPIO_ACTIVE_HIGH>;
             label = "Testing Flash Pin";
         };
 
-        gpio_thru_beam: break_beam@0 {
-            gpios = <&gpioc 13 GPIO_ACTIVE_LOW>; 
-            label = "Break Beam Pin";
+        gpio_status_led: status_led {
+            gpios = <&gpiob 1 GPIO_ACTIVE_LOW>; 
+            label = "Status LED Pin";
         };
 
+    };
+
+     // Inputs go in a gpio-keys node
+    gpio_inputs: gpio_inputs {
+        compatible = "gpio-keys";
+        status = "okay";
+        
         limit_switch_gpio: limit_switch {
-            gpios = <&gpioc 0 GPIO_ACTIVE_LOW>;
+            gpios = <&gpiob 0 GPIO_ACTIVE_LOW>;
             label = "Limit Switch Pin";
         };
 
         start_button_gpio: start_button {
-            gpios = <&gpioc 1 GPIO_ACTIVE_LOW>; 
+            gpios = <&gpioa 0 GPIO_ACTIVE_LOW>; 
             label = "Start Button Pin";
         };
 
-        gpio_status_led: status_led {
-            gpios = <&gpioc 2 GPIO_ACTIVE_LOW>; 
-            label = "Status LED Pin";
-        }
+        gpio_thru_beam: thru_beam {
+            gpios = <&gpiob 5 GPIO_ACTIVE_LOW>; 
+            label = "Break Beam Pin";
+        };
 
+        gpio_tach1: tach_one {
+            gpios = <&gpioc 8 GPIO_ACTIVE_LOW>; 
+            label = "Tach One Pin";
+        };
+
+        gpio_tach2: tach_two {
+            gpios = <&gpioc 9 GPIO_ACTIVE_LOW>; 
+            label = "Break Beam Pin";
+        };
     };
 
-    fan_pwm_node {
+
+  pwm_node {
         compatible = "pwm-leds";
-        status = "disabled";
+        status = "okay";
 
-        // pwm to control the fan speed (will need to add x amount more for x fans)
-        fan_pwm: fan_ctrl_pwm {
-            pwms = <&pwm1 1 PWM_USEC(500) PWM_POLARITY_NORMAL>;
-            label = "Fan Control";
+        // Whatever PWM connected to PC6************************************************************************************
+        // PC6 is TIM3_CH1*, TIM8_CH1
+        fan_pwm1: fan_ctrl_pwm1 {
+            pwms = <&pwm3 1 PWM_USEC(500) PWM_POLARITY_NORMAL>;
+            label = "Fan 1 Control";
+            #pwm-cells = <3>;
         };
 
+        // Whatever PWM connected to PC7
+        // PC7 is TIM3_CH2*, TIM8_CH2
+        fan_pwm2: fan_ctrl_pwm2 {
+            pwms = <&pwm3 2 PWM_USEC(500) PWM_POLARITY_NORMAL>;
+            label = "Fan 2 Control";
+            #pwm-cells = <3>;
+        };
+
+        // Whatever PWM connected to PB13
+        // PB13 is TIM1_CH1N*
         pwm_door: door_ctrl_pwm {
-             pwms = <&pwm2 1 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+             pwms = <&pwm1 1 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
              label = "Door servo Control";
+             #pwm-cells = <3>;
         };
 
-        pwm_wick: pwm@1 {
-            pwms = <&pwm2 2 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        // Whatever PWM connected to PB14
+        // PB14 is TIM1_CH2N*, TIM8_CH2N, 
+        // lets use TIM12_CH1 if N doesnt work out 
+        pwm_wick: wick_pwm {
+            pwms = <&pwm1 2 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
             label = "Wick servo Control";
+            #pwm-cells = <3>;
         };
+
 
     };
 };
@@ -99,77 +136,63 @@
    // st,adc-oversampler = "none";                    
     //st,adc-internal-regulator = "none";             
 
-    pinctrl-0 = <&adc1_in1_pa1>;
+    pinctrl-0 = <&adc1_in10_pc0>;
     pinctrl-names = "default";
-    status = "disabled";
+    status = "okay";
     
-    // adc channel 1 for thermistor 
-    channel@1 {
-        reg = <1>;  // ADC channel 1 
+    // adc channel for thermistor -> Whatver ADC connected to PC0 ******************************************
+    // ADC123_IN0
+    channel@10 {
+        reg = <10>;  // ADC channel 10
         zephyr,gain = "ADC_GAIN_1";
         zephyr,reference = "ADC_REF_INTERNAL";
         zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
         zephyr,resolution = <12>;
     };
 
-
-    // adc channel 2 for strain guage 
-    channel@2 {
-        reg = <2>;  // ADC channel 2
-        zephyr,gain = "ADC_GAIN_1";
-        zephyr,reference = "ADC_REF_INTERNAL";
-        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
-        zephyr,resolution = <12>;
-    };
-
-    // adc channel 3 for tach
-    channel@3 {
-        reg = <3>;  // ADC channel 2
-        zephyr,gain = "ADC_GAIN_1";
-        zephyr,reference = "ADC_REF_INTERNAL";
-        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
-        zephyr,resolution = <12>;
-    };
 };
 
 
 
-
-
-
-
-// Timer 1 for fan pwm
 &timers1 {
-    status = "disabled";
-    st,prescaler = <8399>;  
-    
-
-    // Timer 1 for fan 1 pwm
-    pwm1: pwm1 {
-        compatible = "st,stm32-pwm";
-        status = "disabled";
-        pinctrl-0 = <&tim1_ch1_pa8>; // TIM1_CH1 → PA8
+    status = "okay";
+     st,prescaler = <8399>;  
+    // Timer for door servo pwm -> TIM1_CH1N PB13************************how to configure if N******************
+    // Timer for wick servo pwm -> TIM1_CH2N PB14************************how to configure if N******************
+    // maybe use TIM12_CH1? for PB14
+    pwm1: pwm {
+        compatible = "st,stm32-pwm"; 
+        status = "okay";
+        pinctrl-0 = <&tim1_ch1n_pb13 &tim1_ch2n_pb14>;
         pinctrl-names = "default";
-        #pwm-cells = <3>; 
+        #pwm-cells = <3>;
     };
-
-    // ADD PWM FOR WICK SERVO
-
-    // ADD PWM FOR DOOR SERVO
 };
 
+&timers3 {
+    status = "okay";
+    st,prescaler = <8399>;  
+    // Timer 1 for fan 1 pwm -> TIM3_CH1 PC6
+     // Timer 2 for fan 2 pwm -> TIM3_CH2 PC7
+    pwm3: pwm3 {
+        compatible = "st,stm32-pwm"; 
+        status = "okay";
+        pinctrl-0 = <&tim3_ch1_pc6 &tim3_ch2_pc7>;
+        pinctrl-names = "default";
+        #pwm-cells = <3>;
+    };
+};
 
-
-
-&spi1 {
-    status = "disabled";
-    pinctrl-0 = <&spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pa7>;
+&spi2 {
+    status = "okay";
+    pinctrl-0 = <&spi2_sck_pb10 &spi2_miso_pc2 &spi2_mosi_pc1>;
     pinctrl-names = "default";
     
     // Three CS pins for three drivers
-    cs-gpios = <&gpiob 6 GPIO_ACTIVE_LOW>,   // M-CS1 (Driver 1)
-               <&gpiob 7 GPIO_ACTIVE_LOW>,   // M-CS2 (Driver 2)
-               <&gpiob 8 GPIO_ACTIVE_LOW>;   // M-CS3 (Driver 3)
+    cs-gpios = <&gpioc 10 GPIO_ACTIVE_LOW>,   // M-CS1 (Driver 1)
+               <&gpioc 11 GPIO_ACTIVE_LOW>,   // M-CS2 (Driver 2)
+               <&gpioc 12 GPIO_ACTIVE_LOW>,   // M-CS3 (Driver 3)
+               <&gpioc 13 GPIO_ACTIVE_LOW>; 
     
     // spi device 1 
     drv8434s_1: drv8434s@0 {
@@ -189,6 +212,13 @@
     drv8434s_3: drv8434s@2 {
         compatible = "spi-device";
         reg = <2>;  // Uses cs-gpios[2]
+        spi-max-frequency = <1000000>;
+    };
+
+     // spi device 4
+    drv8434s_4: drv8434s@3 {
+        compatible = "spi-device";
+        reg = <3>;  // Uses cs-gpios[3]
         spi-max-frequency = <1000000>;
     };
 };

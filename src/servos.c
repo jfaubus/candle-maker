@@ -9,12 +9,13 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/pwm.h>
+#include <zephyr/drivers/gpio.h>
 #include "servos.h"
 
 // door servo PWM
-static const struct pwm_dt_spec door_servo = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led1));
+static const struct pwm_dt_spec door_servo = PWM_DT_SPEC_GET(DT_ALIAS(pwm_door));
 // wick servo PWM
-static const struct pwm_dt_spec wick_servo = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led2));
+static const struct pwm_dt_spec wick_servo = PWM_DT_SPEC_GET(DT_ALIAS(pwm_wick));
 // thru beam GPIO
 static const struct gpio_dt_spec thru_beam = GPIO_DT_SPEC_GET(DT_ALIAS(thru_beam), gpios);
 static struct gpio_callback thru_beam_cb_data;

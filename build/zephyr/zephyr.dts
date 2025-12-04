@@ -16,10 +16,20 @@
 	};
 	aliases {
 		led0 = &green_led_2;
-		pwm-led0 = &fan_pwm;
+		pwm-led0 = &green_pwm_led;
 		sw0 = &user_button;
+		pwm-fan1 = &fan_pwm1;
+		pwm-fan2 = &fan_pwm2;
+		pwm-door = &pwm_door;
+		pwm-wick = &pwm_wick;
 		heating-output = &heating_output;
 		testing-output = &testing_output;
+		limit-sw = &limit_switch_gpio;
+		start-btn = &start_button_gpio;
+		thru-beam = &gpio_thru_beam;
+		status-led = &gpio_status_led;
+		gpio-tach1 = &gpio_tach1;
+		gpio-tach2 = &gpio_tach2;
 	};
 	soc {
 		#address-cells = < 0x1 >;
@@ -117,7 +127,7 @@
 				#gpio-cells = < 0x2 >;
 				reg = < 0x40020000 0x400 >;
 				clocks = < &rcc 0x30 0x1 >;
-				phandle = < 0x24 >;
+				phandle = < 0x2b >;
 			};
 			gpiob: gpio@40020400 {
 				compatible = "st,stm32-gpio";
@@ -125,7 +135,7 @@
 				#gpio-cells = < 0x2 >;
 				reg = < 0x40020400 0x400 >;
 				clocks = < &rcc 0x30 0x2 >;
-				phandle = < 0x12 >;
+				phandle = < 0x2c >;
 			};
 			gpioc: gpio@40020800 {
 				compatible = "st,stm32-gpio";
@@ -133,7 +143,7 @@
 				#gpio-cells = < 0x2 >;
 				reg = < 0x40020800 0x400 >;
 				clocks = < &rcc 0x30 0x4 >;
-				phandle = < 0x25 >;
+				phandle = < 0x1d >;
 			};
 			gpiod: gpio@40020c00 {
 				compatible = "st,stm32-gpio";
@@ -141,7 +151,7 @@
 				#gpio-cells = < 0x2 >;
 				reg = < 0x40020c00 0x400 >;
 				clocks = < &rcc 0x30 0x8 >;
-				phandle = < 0x26 >;
+				phandle = < 0x2d >;
 			};
 			gpioe: gpio@40021000 {
 				compatible = "st,stm32-gpio";
@@ -170,29 +180,29 @@
 				#gpio-cells = < 0x2 >;
 				reg = < 0x40021c00 0x400 >;
 				clocks = < &rcc 0x30 0x80 >;
-				phandle = < 0x27 >;
+				phandle = < 0x2e >;
 			};
-			adc1_in1_pa1: adc1_in1_pa1 {
-				pinmux = < 0x30 >;
-				phandle = < 0x16 >;
+			adc1_in10_pc0: adc1_in10_pc0 {
+				pinmux = < 0x410 >;
+				phandle = < 0x19 >;
 			};
 			can1_rx_pb8: can1_rx_pb8 {
 				pinmux = < 0x309 >;
 				bias-pull-up;
-				phandle = < 0x19 >;
+				phandle = < 0x20 >;
 			};
 			can2_rx_pb12: can2_rx_pb12 {
 				pinmux = < 0x389 >;
 				bias-pull-up;
-				phandle = < 0x1b >;
+				phandle = < 0x22 >;
 			};
 			can1_tx_pb9: can1_tx_pb9 {
 				pinmux = < 0x329 >;
-				phandle = < 0x1a >;
+				phandle = < 0x21 >;
 			};
 			can2_tx_pb13: can2_tx_pb13 {
 				pinmux = < 0x3a9 >;
-				phandle = < 0x1c >;
+				phandle = < 0x23 >;
 			};
 			i2c1_scl_pb8: i2c1_scl_pb8 {
 				pinmux = < 0x304 >;
@@ -233,26 +243,59 @@
 			spi1_miso_pa6: spi1_miso_pa6 {
 				pinmux = < 0xc5 >;
 				bias-pull-down;
-				phandle = < 0x10 >;
+				phandle = < 0x11 >;
+			};
+			spi2_miso_pc2: spi2_miso_pc2 {
+				pinmux = < 0x445 >;
+				bias-pull-down;
+				phandle = < 0x1b >;
 			};
 			spi1_mosi_pa7: spi1_mosi_pa7 {
 				pinmux = < 0xe5 >;
 				bias-pull-down;
-				phandle = < 0x11 >;
+				phandle = < 0x12 >;
+			};
+			spi2_mosi_pc1: spi2_mosi_pc1 {
+				pinmux = < 0x427 >;
+				bias-pull-down;
+				phandle = < 0x1c >;
+			};
+			spi1_nss_pa4: spi1_nss_pa4 {
+				pinmux = < 0x85 >;
+				bias-pull-up;
+				phandle = < 0xf >;
 			};
 			spi1_sck_pa5: spi1_sck_pa5 {
 				pinmux = < 0xa5 >;
 				bias-pull-down;
 				slew-rate = "very-high-speed";
-				phandle = < 0xf >;
+				phandle = < 0x10 >;
 			};
-			tim1_ch1_pa8: tim1_ch1_pa8 {
-				pinmux = < 0x101 >;
+			spi2_sck_pb10: spi2_sck_pb10 {
+				pinmux = < 0x345 >;
+				bias-pull-down;
+				slew-rate = "very-high-speed";
+				phandle = < 0x1a >;
+			};
+			tim1_ch1n_pb13: tim1_ch1n_pb13 {
+				pinmux = < 0x3a1 >;
 				phandle = < 0x14 >;
+			};
+			tim1_ch2n_pb14: tim1_ch2n_pb14 {
+				pinmux = < 0x3c1 >;
+				phandle = < 0x15 >;
 			};
 			tim2_ch1_pa5: tim2_ch1_pa5 {
 				pinmux = < 0xa1 >;
-				phandle = < 0x15 >;
+				phandle = < 0x16 >;
+			};
+			tim3_ch1_pc6: tim3_ch1_pc6 {
+				pinmux = < 0x4c2 >;
+				phandle = < 0x17 >;
+			};
+			tim3_ch2_pc7: tim3_ch2_pc7 {
+				pinmux = < 0x4e2 >;
+				phandle = < 0x18 >;
 			};
 			usart1_rx_pb7: usart1_rx_pb7 {
 				pinmux = < 0x2e7 >;
@@ -327,7 +370,7 @@
 			status = "okay";
 			pinctrl-0 = < &i2c1_scl_pb8 &i2c1_sda_pb9 >;
 			pinctrl-names = "default";
-			phandle = < 0x21 >;
+			phandle = < 0x28 >;
 		};
 		i2c2: i2c@40005800 {
 			compatible = "st,stm32-i2c-v1";
@@ -341,7 +384,7 @@
 			status = "okay";
 			pinctrl-0 = < &i2c2_scl_pb10 &i2c2_sda_pb3 >;
 			pinctrl-names = "default";
-			phandle = < 0x22 >;
+			phandle = < 0x29 >;
 		};
 		i2c3: i2c@40005c00 {
 			compatible = "st,stm32-i2c-v1";
@@ -355,7 +398,7 @@
 			status = "okay";
 			pinctrl-0 = < &i2c3_scl_pa8 &i2c3_sda_pb4 >;
 			pinctrl-names = "default";
-			phandle = < 0x23 >;
+			phandle = < 0x2a >;
 		};
 		spi1: arduino_spi: spi@40013000 {
 			compatible = "st,stm32-spi";
@@ -364,25 +407,9 @@
 			reg = < 0x40013000 0x400 >;
 			clocks = < &rcc 0x44 0x1000 >;
 			interrupts = < 0x23 0x5 >;
-			status = "disabled";
-			pinctrl-0 = < &spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pa7 >;
+			status = "okay";
+			pinctrl-0 = < &spi1_nss_pa4 &spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pa7 >;
 			pinctrl-names = "default";
-			cs-gpios = < &gpiob 0x6 0x1 >, < &gpiob 0x7 0x1 >, < &gpiob 0x8 0x1 >;
-			drv8434s_1: drv8434s@0 {
-				compatible = "spi-device";
-				reg = < 0x0 >;
-				spi-max-frequency = < 0xf4240 >;
-			};
-			drv8434s_2: drv8434s@1 {
-				compatible = "spi-device";
-				reg = < 0x1 >;
-				spi-max-frequency = < 0xf4240 >;
-			};
-			drv8434s_3: drv8434s@2 {
-				compatible = "spi-device";
-				reg = < 0x2 >;
-				spi-max-frequency = < 0xf4240 >;
-			};
 		};
 		usbotg_fs: usb@50000000 {
 			compatible = "st,stm32-otgfs";
@@ -404,24 +431,19 @@
 			interrupts = < 0x18 0x0 >, < 0x19 0x0 >, < 0x1a 0x0 >, < 0x1b 0x0 >;
 			interrupt-names = "brk", "up", "trgcom", "cc";
 			st,prescaler = < 0x20cf >;
-			status = "disabled";
-			pwm {
+			status = "okay";
+			pwm1: pwm {
 				compatible = "st,stm32-pwm";
-				status = "disabled";
+				status = "okay";
 				#pwm-cells = < 0x3 >;
+				pinctrl-0 = < &tim1_ch1n_pb13 &tim1_ch2n_pb14 >;
+				pinctrl-names = "default";
+				phandle = < 0x31 >;
 			};
 			qdec {
 				compatible = "st,stm32-qdec";
 				status = "disabled";
 				st,input-filter-level = < 0x0 >;
-			};
-			pwm1: pwm1 {
-				compatible = "st,stm32-pwm";
-				status = "disabled";
-				pinctrl-0 = < &tim1_ch1_pa8 >;
-				pinctrl-names = "default";
-				#pwm-cells = < 0x3 >;
-				phandle = < 0x29 >;
 			};
 		};
 		timers2: timers@40000000 {
@@ -439,7 +461,7 @@
 				#pwm-cells = < 0x3 >;
 				pinctrl-0 = < &tim2_ch1_pa5 >;
 				pinctrl-names = "default";
-				phandle = < 0x28 >;
+				phandle = < 0x2f >;
 			};
 			counter {
 				compatible = "st,stm32-counter";
@@ -458,8 +480,8 @@
 			resets = < &rctl 0x401 >;
 			interrupts = < 0x1d 0x0 >;
 			interrupt-names = "global";
-			st,prescaler = < 0x0 >;
-			status = "disabled";
+			st,prescaler = < 0x20cf >;
+			status = "okay";
 			pwm {
 				compatible = "st,stm32-pwm";
 				status = "disabled";
@@ -473,6 +495,14 @@
 				compatible = "st,stm32-qdec";
 				status = "disabled";
 				st,input-filter-level = < 0x0 >;
+			};
+			pwm3: pwm3 {
+				compatible = "st,stm32-pwm";
+				status = "okay";
+				pinctrl-0 = < &tim3_ch1_pc6 &tim3_ch2_pc7 >;
+				pinctrl-names = "default";
+				#pwm-cells = < 0x3 >;
+				phandle = < 0x30 >;
 			};
 		};
 		timers4: timers@40000800 {
@@ -600,7 +630,7 @@
 			reg = < 0x40012000 0x400 >;
 			clocks = < &rcc 0x44 0x100 >;
 			interrupts = < 0x12 0x0 >;
-			status = "disabled";
+			status = "okay";
 			#io-channel-cells = < 0x1 >;
 			resolutions = < 0x607804 0x517804 0x427804 0x337804 >;
 			sampling-times = < 0x3 0xf 0x1c 0x38 0x54 0x70 0x90 0x1e0 >;
@@ -610,25 +640,11 @@
 			#address-cells = < 0x1 >;
 			#size-cells = < 0x0 >;
 			vref-mv = < 0xce4 >;
-			pinctrl-0 = < &adc1_in1_pa1 >;
+			pinctrl-0 = < &adc1_in10_pc0 >;
 			pinctrl-names = "default";
-			phandle = < 0x20 >;
-			channel@1 {
-				reg = < 0x1 >;
-				zephyr,gain = "ADC_GAIN_1";
-				zephyr,reference = "ADC_REF_INTERNAL";
-				zephyr,acquisition-time = < 0x0 >;
-				zephyr,resolution = < 0xc >;
-			};
-			channel@2 {
-				reg = < 0x2 >;
-				zephyr,gain = "ADC_GAIN_1";
-				zephyr,reference = "ADC_REF_INTERNAL";
-				zephyr,acquisition-time = < 0x0 >;
-				zephyr,resolution = < 0xc >;
-			};
-			channel@3 {
-				reg = < 0x3 >;
+			phandle = < 0x27 >;
+			channel@10 {
+				reg = < 0xa >;
 				zephyr,gain = "ADC_GAIN_1";
 				zephyr,reference = "ADC_REF_INTERNAL";
 				zephyr,acquisition-time = < 0x0 >;
@@ -642,7 +658,7 @@
 			interrupts = < 0xb 0x0 0xc 0x0 0xd 0x0 0xe 0x0 0xf 0x0 0x10 0x0 0x11 0x0 0x2f 0x0 >;
 			clocks = < &rcc 0x30 0x200000 >;
 			status = "disabled";
-			phandle = < 0x17 >;
+			phandle = < 0x1e >;
 		};
 		dma2: dma@40026400 {
 			compatible = "st,stm32-dma-v1";
@@ -652,7 +668,7 @@
 			clocks = < &rcc 0x30 0x400000 >;
 			st,mem2mem;
 			status = "disabled";
-			phandle = < 0x18 >;
+			phandle = < 0x1f >;
 		};
 		sdmmc1: sdmmc@40012c00 {
 			compatible = "st,stm32-sdmmc";
@@ -669,7 +685,30 @@
 			reg = < 0x40003800 0x400 >;
 			clocks = < &rcc 0x40 0x4000 >;
 			interrupts = < 0x24 0x5 >;
-			status = "disabled";
+			status = "okay";
+			pinctrl-0 = < &spi2_sck_pb10 &spi2_miso_pc2 &spi2_mosi_pc1 >;
+			pinctrl-names = "default";
+			cs-gpios = < &gpioc 0xa 0x1 >, < &gpioc 0xb 0x1 >, < &gpioc 0xc 0x1 >, < &gpioc 0xd 0x1 >;
+			drv8434s_1: drv8434s@0 {
+				compatible = "spi-device";
+				reg = < 0x0 >;
+				spi-max-frequency = < 0xf4240 >;
+			};
+			drv8434s_2: drv8434s@1 {
+				compatible = "spi-device";
+				reg = < 0x1 >;
+				spi-max-frequency = < 0xf4240 >;
+			};
+			drv8434s_3: drv8434s@2 {
+				compatible = "spi-device";
+				reg = < 0x2 >;
+				spi-max-frequency = < 0xf4240 >;
+			};
+			drv8434s_4: drv8434s@3 {
+				compatible = "spi-device";
+				reg = < 0x3 >;
+				spi-max-frequency = < 0xf4240 >;
+			};
 		};
 		spi3: spi@40003c00 {
 			compatible = "st,stm32-spi";
@@ -845,7 +884,7 @@
 				power-state-name = "suspend-to-idle";
 				min-residency-us = < 0x190 >;
 				exit-latency-us = < 0x12c >;
-				phandle = < 0x1e >;
+				phandle = < 0x25 >;
 			};
 		};
 	};
@@ -860,7 +899,7 @@
 			status = "okay";
 			hse-bypass;
 			clock-frequency = < 0x7a1200 >;
-			phandle = < 0x1f >;
+			phandle = < 0x26 >;
 		};
 		clk_hsi: clk-hsi {
 			#clock-cells = < 0x0 >;
@@ -949,7 +988,7 @@
 	otghs_fs_phy: otghs_fs_phy {
 		compatible = "usb-nop-xceiv";
 		#phy-cells = < 0x0 >;
-		phandle = < 0x1d >;
+		phandle = < 0x24 >;
 	};
 	arduino_header: connector {
 		compatible = "arduino-header-r3";
@@ -987,26 +1026,70 @@
 		};
 	};
 	zephyr,user {
-		io-channels = < &adc1 0x3 >;
+		io-channels = < &adc1 0xa >;
 	};
 	gpio_output: gpio_output {
 		compatible = "gpio-leds";
 		status = "okay";
 		heating_output: heat_control {
-			gpios = < &gpioc 0xe 0x0 >;
+			gpios = < &gpiob 0x4 0x0 >;
 			label = "Heating Control Pin";
 		};
-		testing_output: testing_conrol {
+		testing_output: testing_control {
 			gpios = < &gpiob 0x9 0x0 >;
 			label = "Testing Flash Pin";
 		};
+		gpio_status_led: status_led {
+			gpios = < &gpiob 0x1 0x1 >;
+			label = "Status LED Pin";
+		};
 	};
-	fan_pwm_node {
+	gpio_inputs: gpio_inputs {
+		compatible = "gpio-keys";
+		status = "okay";
+		limit_switch_gpio: limit_switch {
+			gpios = < &gpiob 0x0 0x1 >;
+			label = "Limit Switch Pin";
+		};
+		start_button_gpio: start_button {
+			gpios = < &gpioa 0x0 0x1 >;
+			label = "Start Button Pin";
+		};
+		gpio_thru_beam: thru_beam {
+			gpios = < &gpiob 0x5 0x1 >;
+			label = "Break Beam Pin";
+		};
+		gpio_tach1: tach_one {
+			gpios = < &gpioc 0x8 0x1 >;
+			label = "Tach One Pin";
+		};
+		gpio_tach2: tach_two {
+			gpios = < &gpioc 0x9 0x1 >;
+			label = "Break Beam Pin";
+		};
+	};
+	pwm_node {
 		compatible = "pwm-leds";
-		status = "disabled";
-		fan_pwm: fan_ctrl_pwm {
-			pwms = < &pwm1 0x1 0x7a120 0x0 >;
-			label = "Fan Control";
+		status = "okay";
+		fan_pwm1: fan_ctrl_pwm1 {
+			pwms = < &pwm3 0x1 0x7a120 0x0 >;
+			label = "Fan 1 Control";
+			#pwm-cells = < 0x3 >;
+		};
+		fan_pwm2: fan_ctrl_pwm2 {
+			pwms = < &pwm3 0x2 0x7a120 0x0 >;
+			label = "Fan 2 Control";
+			#pwm-cells = < 0x3 >;
+		};
+		pwm_door: door_ctrl_pwm {
+			pwms = < &pwm1 0x1 0x1312d00 0x1 >;
+			label = "Door servo Control";
+			#pwm-cells = < 0x3 >;
+		};
+		pwm_wick: wick_pwm {
+			pwms = < &pwm1 0x2 0x1312d00 0x1 >;
+			label = "Wick servo Control";
+			#pwm-cells = < 0x3 >;
 		};
 	};
 };

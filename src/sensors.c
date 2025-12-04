@@ -3,23 +3,15 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
-
+#include "sensors.h"
 
 // device tree references
-static const struct gpio_dt_spec limit_switch = GPIO_DT_SPEC_GET(DT_NOALIAS(limit_sw), gpios);
-static const struct gpio_dt_spec start_button = GPIO_DT_SPEC_GET(DT_NOALIAS(start_btn), gpios);
-static const struct gpio_dt_spec status_led = GPIO_DT_SPEC_GET(DT_NOALIAS(status_led), gpios);
+static const struct gpio_dt_spec limit_switch = GPIO_DT_SPEC_GET(DT_ALIAS(limit_sw), gpios);
+static const struct gpio_dt_spec start_button = GPIO_DT_SPEC_GET(DT_ALIAS(start_btn), gpios);
+static const struct gpio_dt_spec status_led = GPIO_DT_SPEC_GET(DT_ALIAS(status_led), gpios);
 
-// set status led
-int set_status_led(uint16_t stat){
-    int err;
-    err = gpio_pin_set_dt(&status_led, stat);
-    if (err < 0){
-        printk("failed to set heating gpio %d\n", err);
-        return -1;
-    }
-    return 0;
-}
+
+static volatile led_mode_t current_led_mode = LED_OFF;
 
 // button state tracking struct
 struct button_state_t {
@@ -31,6 +23,60 @@ static struct button_state_t button_state = {0};
 
 // GPIO callback structure
 static struct gpio_callback button_cb_data;
+
+// LED control thread
+#define LED_THREAD_STACK_SIZE 512
+#define LED_THREAD_PRIORITY 5
+
+
+
+// LED control thread function
+void led_control_thread(void *p1, void *p2, void *p3) {
+    ARG_UNUSED(p1);
+    ARG_UNUSED(p2);
+    ARG_UNUSED(p3);
+    
+    bool led_state = false;
+    
+    while (1) {
+        switch (current_led_mode) {
+            case LED_OFF:
+                gpio_pin_set_dt(&status_led, 0);
+                k_msleep(100);  // Check mode every 100ms
+                break;
+                
+            case LED_ON:
+                gpio_pin_set_dt(&status_led, 1);
+                k_msleep(100);  // Check mode every 100ms
+                break;
+                
+            case LED_SLOW_BLINK:
+                led_state = !led_state;
+                gpio_pin_set_dt(&status_led, led_state);
+                k_msleep(500);  // Toggle every 500ms (1 Hz)
+                break;
+                
+            case LED_FAST_BLINK:
+                led_state = !led_state;
+                gpio_pin_set_dt(&status_led, led_state);
+                k_msleep(100);  // Toggle every 100ms (5 Hz)
+                break;
+        }
+    }
+}
+
+K_THREAD_DEFINE(led_thread_id, LED_THREAD_STACK_SIZE,
+                led_control_thread, NULL, NULL, NULL,
+                LED_THREAD_PRIORITY, 0, 0);
+
+// function for state machine to set LED mode
+void set_status_led_mode(led_mode_t mode) {
+    current_led_mode = mode;
+    printk("LED mode set to: %d\n", mode);
+}
+
+
+
 
 // ISR for button
 void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)

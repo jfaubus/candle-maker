@@ -95,23 +95,31 @@
 #include "cooling.h"
 #include "servos.h"
 #include "sensors.h"
+#include "motors.h"   
+
 
 //has an encoder
  #define SCENT_ID 1
  #define SCENT_STEPS 3200
  #define SCENT_SPEED 5
+ #define SCENT_DIR 1
 
  #define WAX_ID 2
  #define WAX_STEPS 3200
  #define WAX_SPEED 5
+ #define WAX_DIR 1
  
  #define STIR_ID 3
  #define STIR_STEPS 3200
  #define STIR_SPEED 5
+ #define STIR_DIR 1
 
  #define LEAD_SCREW_ID 4
  #define LEAD_SCREW_STEPS 3200
  #define LEAD_SCREW_SPEED 5
+ #define LEAD_SCREW_DIR 1
+ #define LEAD_SCREW_DIR_REVERSE 0
+ //ADD MOTOR DIRECTION****************************************************************************************************************
 
 
 K_MSGQ_DEFINE(state_msgq, sizeof(enum state), 10, 4);
@@ -169,6 +177,8 @@ void main(void) {
         // Simple state execution
         switch(machine.current) {
             case IDLE:
+                // turns status LED on
+                set_status_led_mode(LED_ON);
                 //DISPLAY: IDLE STATE
                 printk("Waiting for button press...\n");
                 //*************Button_pressed() < 2 sec ? 1 : 0 ******************/
@@ -183,12 +193,16 @@ void main(void) {
                 else if (get_button_press_duration() > 2000) {
                     machine.current = WASH_CYCLE;
                 }
+                // turns status LED off
+                set_status_led_mode(LED_OFF);
                 break;
                 
             case WASH_CYCLE:
                 printk("Wash cycle starting...");
                 //DISPLAY: WASH CYCLE
-                set_status_led(1); //TURNS ON FOR NOW -> WILL NEED FAST BLINKING LATER
+               
+                // sets status LED to fast blink
+                set_status_led_mode(LED_FAST_BLINK);
                 //display instructions
                 // wait for user to press the start button again
                 wait_for_button_press();
@@ -196,7 +210,8 @@ void main(void) {
                 motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
                 
                 machine.wash_cycle = 1;
-                set_status_led(0); //TURNS OFF FOR NOW
+                // turns status LED off
+                set_status_led_mode(LED_OFF);
 
                 machine.current = IDLE;
                 break;
@@ -204,8 +219,9 @@ void main(void) {
             case INIT_CHECK:
                 //DISPLAY: INIT STATE
                 printk("Checking sensors...\n");
-                set_status_led(1); //TURNS ON FOR NOW -> WILL NEED SLOW BLINKING LATER*************************
-               
+
+                // sets status LED to slow blink
+                set_status_led_mode(LED_SLOW_BLINK);
                 //if door closed, lock door
                 if (read_limit_switch()) {
                     printk("Door closed!\n");
@@ -233,6 +249,8 @@ void main(void) {
                         machine.current = ESTOP;
                         break;
                     }
+                // turns status LED off
+                set_status_led_mode(LED_OFF);
                 machine.current = HEATING;
                 break;
                 
@@ -264,7 +282,7 @@ void main(void) {
 
             case WAIT_FOR_TEMP:
                 machine.current_temp = get_current_temp();
-                printk("Waiting for temp to reach target %.1f°C / %.1f°C\n", machine.current_temp, TARGET_TEMP);
+                printk("Waiting for temp to reach target \n");
     
                 if (machine.current_temp >= TARGET_TEMP) {
                 // Turn off heater and move to next state
@@ -309,6 +327,7 @@ void main(void) {
                     machine.current = ESTOP;
                     break;
                 }
+                //BRING STIRRING MACHINE BACK UP************************************************************************************
                 machine.current = WICK_INSERT;
                 break;
 

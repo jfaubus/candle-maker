@@ -7,6 +7,7 @@ enum state {
     IDLE,
     INIT_CHECK,
     WAX_DISPENSE,
+    WAIT_FOR_TEMP,
     HEATING,
     SCENT_DISPENSE,
     STIRRING,

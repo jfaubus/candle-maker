@@ -31,6 +31,35 @@ static uint16_t sample_buffer[1];
 //will be used by the state machine
 static volatile float current_temp = 0.0f; 
 
+
+//Thread must accept three void * args to match K_THREAD_DEFINE 
+// starts temp safety thread after the adc is initialized
+void temp_safety_thread(void *p1, void *p2, void *p3)
+{
+    ARG_UNUSED(p1);
+    ARG_UNUSED(p2);
+    ARG_UNUSED(p3);
+
+    // Waits for ADC to be ready (set up in heating_init)
+   
+    while (!adc_is_ready_dt(&adc_channel)) {
+        k_msleep(100);
+    }
+    printk("ADC ready, temp safety thread started \n");
+
+
+    while (1) {
+        // cast the return to a float
+        current_temp = (float)read_thermistor_temp();
+        if (current_temp > MAX_SAFE_TEMP) {
+            gpio_pin_set_dt(&heating_spec, 0);
+            printk("Overheat detected: %.1f°C\n", (double)current_temp);
+            // TODO: Set estop flag somehow?
+        }
+        k_msleep(100);
+    }
+}
+
 K_THREAD_DEFINE(temp_thread_id, TEMPTHREAD_STACK_SIZE,
                 temp_safety_thread, NULL, NULL, NULL,
                 TEMPTHREAD_PRIORITY, 0, 0);
@@ -94,33 +123,6 @@ double read_thermistor_temp(void) {
 
 
 
-//Thread must accept three void * args to match K_THREAD_DEFINE 
-// starts temp safety thread after the adc is initialized
-void temp_safety_thread(void *p1, void *p2, void *p3)
-{
-    ARG_UNUSED(p1);
-    ARG_UNUSED(p2);
-    ARG_UNUSED(p3);
-
-    // Waits for ADC to be ready (set up in heating_init)
-   
-    while (!adc_is_ready_dt(&adc_channel)) {
-        k_msleep(100);
-    }
-    printk("ADC ready, temp safety thread started \n");
-
-
-    while (1) {
-        // cast the return to a float
-        current_temp = (float)read_thermistor_temp();
-        if (current_temp > MAX_SAFE_TEMP) {
-            gpio_pin_set_dt(&heating_spec, 0);
-            printk("Overheat detected: %.1f°C\n", current_temp);
-            // TODO: Set estop flag somehow?
-        }
-        k_msleep(100);
-    }
-}
 
 float get_current_temp(void) {
     // no race conditions because a float is 32 bits so writing is an atomic operation

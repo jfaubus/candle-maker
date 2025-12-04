@@ -2831,44 +2831,121 @@ arduino_spi: &spi1 {};
 # 1 "./app.overlay" 1
 / {
     zephyr,user {
-        io-channels = <&adc1 1>;
-        io-channels = <&adc1 2>;
-        io-channels = <&adc1 3>;
 
+
+        io-channels = <&adc1 10>;
     };
 
     aliases {
-        pwm-led0 = &fan_pwm;
+        pwm-fan1 = &fan_pwm1;
+        pwm-fan2 = &fan_pwm2;
+        pwm-door = &pwm_door;
+        pwm-wick = &pwm_wick;
 
         heating-output = &heating_output;
         testing-output = &testing_output;
+        limit-sw = &limit_switch_gpio;
+        start-btn = &start_button_gpio;
+        thru-beam = &gpio_thru_beam;
+        status-led = &gpio_status_led;
+        gpio-tach1 = &gpio_tach1;
+        gpio-tach2 = &gpio_tach2;
+
+
     };
-# 28 "./app.overlay"
+
     gpio_output: gpio_output {
         compatible = "gpio-leds";
         status = "okay";
 
 
         heating_output: heat_control {
-            gpios = <&gpioc 14 (0 << 0)>;
+            gpios = <&gpiob 4 (0 << 0)>;
             label = "Heating Control Pin";
         };
 
-        testing_output: testing_conrol {
+        testing_output: testing_control {
             gpios = <&gpiob 9 (0 << 0)>;
             label = "Testing Flash Pin";
         };
+
+        gpio_status_led: status_led {
+            gpios = <&gpiob 1 (1 << 0)>;
+            label = "Status LED Pin";
+        };
+
     };
 
-    fan_pwm_node {
-        compatible = "pwm-leds";
-        status = "disabled";
 
+    gpio_inputs: gpio_inputs {
+        compatible = "gpio-keys";
+        status = "okay";
 
-        fan_pwm: fan_ctrl_pwm {
-            pwms = <&pwm1 1 ((500) * 1000UL) (0 << 0)>;
-            label = "Fan Control";
+        limit_switch_gpio: limit_switch {
+            gpios = <&gpiob 0 (1 << 0)>;
+            label = "Limit Switch Pin";
         };
+
+        start_button_gpio: start_button {
+            gpios = <&gpioa 0 (1 << 0)>;
+            label = "Start Button Pin";
+        };
+
+        gpio_thru_beam: thru_beam {
+            gpios = <&gpiob 5 (1 << 0)>;
+            label = "Break Beam Pin";
+        };
+
+        gpio_tach1: tach_one {
+            gpios = <&gpioc 8 (1 << 0)>;
+            label = "Tach One Pin";
+        };
+
+        gpio_tach2: tach_two {
+            gpios = <&gpioc 9 (1 << 0)>;
+            label = "Break Beam Pin";
+        };
+    };
+
+
+  pwm_node {
+        compatible = "pwm-leds";
+        status = "okay";
+
+
+
+        fan_pwm1: fan_ctrl_pwm1 {
+            pwms = <&pwm3 1 ((500) * 1000UL) (0 << 0)>;
+            label = "Fan 1 Control";
+            #pwm-cells = <3>;
+        };
+
+
+
+        fan_pwm2: fan_ctrl_pwm2 {
+            pwms = <&pwm3 2 ((500) * 1000UL) (0 << 0)>;
+            label = "Fan 2 Control";
+            #pwm-cells = <3>;
+        };
+
+
+
+        pwm_door: door_ctrl_pwm {
+             pwms = <&pwm1 1 (((20) * 1000UL) * 1000UL) (1 << 0)>;
+             label = "Door servo Control";
+             #pwm-cells = <3>;
+        };
+
+
+
+
+        pwm_wick: wick_pwm {
+            pwms = <&pwm1 2 (((20) * 1000UL) * 1000UL) (1 << 0)>;
+            label = "Wick servo Control";
+            #pwm-cells = <3>;
+        };
+
+
     };
 };
 
@@ -2882,71 +2959,64 @@ arduino_spi: &spi1 {};
 
 
     vref-mv = <3300>;
-# 74 "./app.overlay"
-    pinctrl-0 = <&adc1_in1_pa1>;
+# 139 "./app.overlay"
+    pinctrl-0 = <&adc1_in10_pc0>;
     pinctrl-names = "default";
-    status = "disabled";
+    status = "okay";
 
 
-    channel@1 {
-        reg = <1>;
+
+    channel@10 {
+        reg = <10>;
         zephyr,gain = "ADC_GAIN_1";
         zephyr,reference = "ADC_REF_INTERNAL";
         zephyr,acquisition-time = <0>;
         zephyr,resolution = <12>;
     };
 
-
-
-    channel@2 {
-        reg = <2>;
-        zephyr,gain = "ADC_GAIN_1";
-        zephyr,reference = "ADC_REF_INTERNAL";
-        zephyr,acquisition-time = <0>;
-        zephyr,resolution = <12>;
-    };
-
-
-    channel@3 {
-        reg = <3>;
-        zephyr,gain = "ADC_GAIN_1";
-        zephyr,reference = "ADC_REF_INTERNAL";
-        zephyr,acquisition-time = <0>;
-        zephyr,resolution = <12>;
-    };
 };
-# 114 "./app.overlay"
+
+
+
 &timers1 {
-    status = "disabled";
-    st,prescaler = <8399>;
+    status = "okay";
+     st,prescaler = <8399>;
 
 
 
-    pwm1: pwm1 {
+    pwm1: pwm {
         compatible = "st,stm32-pwm";
-        status = "disabled";
-        pinctrl-0 = <&tim1_ch1_pa8>;
+        status = "okay";
+        pinctrl-0 = <&tim1_ch1n_pb13 &tim1_ch2n_pb14>;
         pinctrl-names = "default";
         #pwm-cells = <3>;
     };
-
-
-
-
 };
 
+&timers3 {
+    status = "okay";
+    st,prescaler = <8399>;
 
 
+    pwm3: pwm3 {
+        compatible = "st,stm32-pwm";
+        status = "okay";
+        pinctrl-0 = <&tim3_ch1_pc6 &tim3_ch2_pc7>;
+        pinctrl-names = "default";
+        #pwm-cells = <3>;
+    };
+};
 
-&spi1 {
-    status = "disabled";
-    pinctrl-0 = <&spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pa7>;
+&spi2 {
+    status = "okay";
+    pinctrl-0 = <&spi2_sck_pb10 &spi2_miso_pc2 &spi2_mosi_pc1>;
     pinctrl-names = "default";
 
 
-    cs-gpios = <&gpiob 6 (1 << 0)>,
-               <&gpiob 7 (1 << 0)>,
-               <&gpiob 8 (1 << 0)>;
+    cs-gpios = <&gpioc 10 (1 << 0)>,
+               <&gpioc 11 (1 << 0)>,
+               <&gpioc 12 (1 << 0)>,
+               <&gpioc 13 (1 << 0)>;
 
 
     drv8434s_1: drv8434s@0 {
@@ -2966,6 +3036,13 @@ arduino_spi: &spi1 {};
     drv8434s_3: drv8434s@2 {
         compatible = "spi-device";
         reg = <2>;
+        spi-max-frequency = <1000000>;
+    };
+
+
+    drv8434s_4: drv8434s@3 {
+        compatible = "spi-device";
+        reg = <3>;
         spi-max-frequency = <1000000>;
     };
 };

@@ -2,8 +2,7 @@
 #include "motors.h"
 
 
-//flag for thru beam
-static volatile bool thru_beam_triggered = false;
+
 
 // Motor command queue (one command per motor)
 static struct motor_command motor_commands[4] = {0};
@@ -35,11 +34,6 @@ struct spi_config spi_cfg3;
 struct spi_config spi_cfg4;
 
 
-// Thru beam ISR (will need to configure and attach in init code)
-void thru_beam_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
-{
-    thru_beam_triggered = true;
-}
 
 
 int drv8434s_init(void) {
@@ -98,7 +92,7 @@ int drv8434s_init(void) {
     spi_cfg4.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPHA | SPI_OP_MODE_MASTER;
     spi_cfg4.slave = 3;
     spi_cfg4.cs = (struct spi_cs_control){
-        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi4), cs_gpios, 0),
+        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi1), cs_gpios, 3),
         .delay = 0,
     };
 

@@ -1,204 +1,278 @@
-// need to process tach reading
-// need to add logic to monitor for big changes in tach and adjust pwm accordingly
-// maybe change pwm to pid?
-
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/sys/util.h>
-#include <zephyr/drivers/adc.h>
+#include "cooling.h"
 
-
-
-#define TACHTHREAD_STACK_SIZE 512
+#define TACHTHREAD_STACK_SIZE 1024
 #define TACHTHREAD_PRIORITY 2
 
-#define OPERATING_SPEED 80
-#define SPEED_ERROR 10
-#define DUTY_STEP 5    
+#define OPERATING_SPEED_RPM 2000  // Target RPM***************************************literally no idea
+#define SPEED_ERROR_RPM 200       // Tolerance (might increase?)******************************
+#define DUTY_STEP 5
+#define TACH_SAMPLE_PERIOD_MS 1000  // Sample for 1 second
+#define PULSES_PER_REV 2  // Most PC fans = 2 pulses/revolution apparently but I need to confirm***********************
 
-
-// Semaphore to wake up cooling thread
+// Semaphore to control cooling thread
 K_SEM_DEFINE(cooling_sem, 0, 1);
 
+// PWM for both fans
+static const struct pwm_dt_spec pwm_fan1 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_fan1));
+static const struct pwm_dt_spec pwm_fan2 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_fan2));
 
+// GPIO for both tach inputs
+static const struct gpio_dt_spec gpio_tach1 = GPIO_DT_SPEC_GET(DT_ALIAS(gpio_tach1), gpios);
+static const struct gpio_dt_spec gpio_tach2 = GPIO_DT_SPEC_GET(DT_ALIAS(gpio_tach2), gpios);
 
-// pwm node
-static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
+// Tach pulse counters
+static volatile uint32_t tach1_pulse_count = 0;
+static volatile uint32_t tach2_pulse_count = 0;
 
-// Tach input GPIO
-//static const struct gpio_dt_spec tach_input = GPIO_DT_SPEC_GET(DT_ALIAS(tach_input), gpios);
+// GPIO callbacks
+static struct gpio_callback tach1_cb_data;
+static struct gpio_callback tach2_cb_data;
 
-#define ADC_NODE DT_NODELABEL(adc1)
-
-static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), 3);
-
+// Current duty cycles
 static uint32_t period_us = 500;  // 2kHz
-static uint8_t current_duty = 0;
+static uint8_t current_duty_fan1 = 0;
+static uint8_t current_duty_fan2 = 0;
 
+
+// Thread definition
 K_THREAD_DEFINE(tach_thread_id, TACHTHREAD_STACK_SIZE,
-                tach_monitoring_thread, NULL, NULL, NULL, TACHTHREAD_PRIORITY, 0, 0);
+                tach_monitoring_thread, NULL, NULL, NULL, 
+                TACHTHREAD_PRIORITY, 0, 0);
 
 
+// tach1 interrupt handler
+void tach1_interrupt_handler(const struct device *dev, struct gpio_callback *cb, uint32_t pins){
+    tach1_pulse_count++;
+}
+// tach2 interrupt handler
+void tach2_interrupt_handler(const struct device *dev, struct gpio_callback *cb, uint32_t pins){
+    tach2_pulse_count++;
+}
 
-// Buffer for ADC sample
-static uint16_t sample_buffer[1];
-
-
-
-int cooling_init(void){
-
-    int flag;
-
-    // Check if PWM device is ready 
-    if (!device_is_ready(pwm_led0.dev)) {
-        printk("Fan PWM device not ready\n");
-        return -1;
+int set_fan1(uint8_t percent_duty)
+{
+    // Start fan at duty_percent * period
+    uint32_t pulse_us = (period_us * percent_duty) / 100;
+    int err = pwm_set_dt(&pwm_fan1, PWM_USEC(period_us), PWM_USEC(pulse_us));
+    if (err < 0) {
+        printk("Failed to set Fan 1 PWM: %d\n", err);
+        return err;
     }
-
-     printk("Fan controller initialized\n");
-
-    // Check if ADC is ready
-    if (!adc_is_ready_dt(&adc_channel)) {
-        printk("ADC device not ready\n");
-        return -1;
-    }
-
-    // Configure the ADC channel
-    flag = adc_channel_setup_dt(&adc_channel);
-    if (flag < 0) {
-        printk("Failed to setup ADC channel (%d)\n", flag);
-        return flag;
-    }
-
-    // Start with fan stopped
-    flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), 0);
-    if (flag < 0) {
-        printk("Failed to initialize PWM: %d\n", flag);
-        return flag;
-    }
+    current_duty_fan1 = percent_duty;
     return 0;
 }
 
-
-
-double read_tach_speed(void) { 
-    int err;
-    int32_t adc_value = 0;
-    
-    // Configure the sequence for reading
-    struct adc_sequence sequence = {
-        .buffer = sample_buffer,
-        .buffer_size = sizeof(sample_buffer),
-    };
-    
-    // Setup the sequence from the ADC spec (this initializes channels, resolution, etc.)
-    err = adc_sequence_init_dt(&adc_channel, &sequence);
+int set_fan2(uint8_t percent_duty)
+{
+    // Start fan at duty_percent * period
+    uint32_t pulse_us = (period_us * percent_duty) / 100;
+    int err = pwm_set_dt(&pwm_fan2, PWM_USEC(period_us), PWM_USEC(pulse_us));
     if (err < 0) {
-        printk("Failed to init ADC sequence (%d)\n", err);
-        return -1.0;
+        printk("Failed to set Fan 2 PWM: %d\n", err);
+        return err;
+    }
+    current_duty_fan2 = percent_duty;
+    return 0;
+}
+
+int set_both_fans(uint8_t percent_duty)
+{
+    int err1 = set_fan1(percent_duty);
+    int err2 = set_fan2(percent_duty);
+    
+    if (err1 < 0 || err2 < 0) {
+        return -1;
     }
     
-    // Read the ADC
-    err = adc_read(adc_channel.dev, &sequence);
-    if (err < 0) {
-        printk("Could not read ADC (%d)\n", err);
-        return -1.0;
-    }
-    
-    // Get the raw ADC value
-    adc_value = sample_buffer[0];
-    
-    // Convert raw ADC to millivolts
-    int32_t mv_value = adc_value;
-    err = adc_raw_to_millivolts_dt(&adc_channel, &mv_value);
-    if (err < 0) {
-        printk("Failed to convert to mV (%d)\n", err);
-        return -1.0;
-    }
-    
+    printk("Both fans set to %d%% duty cycle\n", percent_duty);
+    return 0;
+}
 
-    // print the raw adc value and the processed ADC value 
-    printk("Tach ADC raw: %d, mV: %d\n", adc_value, mv_value);
+int stop_fans(void)
+{
+    int err1 = pwm_set_dt(&pwm_fan1, PWM_USEC(period_us), 0);
+    int err2 = pwm_set_dt(&pwm_fan2, PWM_USEC(period_us), 0);
     
-    // TODO: Convert mV to speed
-    return 25.0;  // Placeholder
+    if (err1 < 0 || err2 < 0) {
+        printk("Failed to stop fans\n");
+        return -1;
+    }
+    
+    current_duty_fan1 = 0;
+    current_duty_fan2 = 0;
+    printk("Both fans stopped\n");
+    return 0;
+}
+
+// tach reading functions
+uint32_t read_tach1_rpm(void)
+{
+    // Reset counter
+    tach1_pulse_count = 0;
+    
+    // Wait for sample period
+    k_msleep(TACH_SAMPLE_PERIOD_MS);
+    
+    // Calculate RPM
+    // RPM = (pulses / sample_time_seconds) / pulses_per_rev * 60
+    uint32_t rpm = (tach1_pulse_count * 60) / PULSES_PER_REV;
+    
+    printk("Fan 1 - Pulses: %u, RPM: %u\n", tach1_pulse_count, rpm);
+    return rpm;
+}
+
+uint32_t read_tach2_rpm(void)
+{
+    // Reset counter
+    tach2_pulse_count = 0;
+    
+    // Wait for sample period
+    k_msleep(TACH_SAMPLE_PERIOD_MS);
+    
+    // Calculate RPM
+    uint32_t rpm = (tach2_pulse_count * 60) / PULSES_PER_REV;
+    
+    printk("Fan 2 - Pulses: %u, RPM: %u\n", tach2_pulse_count, rpm);
+    return rpm;
 }
 
 
-//Thread must accept three void * args to match K_THREAD_DEFINE 
+
+// start cooling threads
+void start_cooling(void)
+{
+    current_duty_fan1 = 50;
+    current_duty_fan2 = 50;
+    set_both_fans(50);
+    k_sem_give(&cooling_sem);  // Wake up monitoring thread
+    printk("Cooling started at 50%% duty\n");
+}
+
+// stop cooling thread
+void stop_cooling(void)
+{
+    k_sem_reset(&cooling_sem);  // Stop monitoring
+    stop_fans();
+    printk("Cooling stopped\n");
+}
+
+// init cooling 
+int cooling_init(void)
+{
+    int err;
+
+    // Check PWM devices
+    if (!device_is_ready(pwm_fan1.dev)) {
+        printk("Fan 1 PWM device not ready\n");
+        return -1;
+    }
+    
+    if (!device_is_ready(pwm_fan2.dev)) {
+        printk("Fan 2 PWM device not ready\n");
+        return -1;
+    }
+
+
+    // Configure tach GPIO inputs
+    if (!device_is_ready(gpio_tach1.port)) {
+        printk("Tach 1 GPIO device not ready\n");
+        return -1;
+    }
+    
+    if (!device_is_ready(gpio_tach2.port)) {
+        printk("Tach 2 GPIO device not ready\n");
+        return -1;
+    }
+
+    // Configure tach 1 as input with interrupt on rising edge
+    err = gpio_pin_configure_dt(&gpio_tach1, GPIO_INPUT);
+    if (err < 0) {
+        printk("Failed to configure tach 1 GPIO: %d\n", err);
+        return err;
+    }
+
+    err = gpio_pin_interrupt_configure_dt(&gpio_tach1, GPIO_INT_EDGE_RISING);
+    if (err < 0) {
+        printk("Failed to configure tach 1 interrupt: %d\n", err);
+        return err;
+    }
+
+    // Configure tach 2 as input with interrupt on rising edge
+    err = gpio_pin_configure_dt(&gpio_tach2, GPIO_INPUT);
+    if (err < 0) {
+        printk("Failed to configure tach 2 GPIO: %d\n", err);
+        return err;
+    }
+
+    err = gpio_pin_interrupt_configure_dt(&gpio_tach2, GPIO_INT_EDGE_RISING);
+    if (err < 0) {
+        printk("Failed to configure tach 2 interrupt: %d\n", err);
+        return err;
+    }
+
+    // Setup GPIO callbacks for the tach
+    gpio_init_callback(&tach1_cb_data, tach1_interrupt_handler, BIT(gpio_tach1.pin));
+    gpio_add_callback(gpio_tach1.port, &tach1_cb_data);
+    gpio_init_callback(&tach2_cb_data, tach2_interrupt_handler, BIT(gpio_tach2.pin));
+    gpio_add_callback(gpio_tach2.port, &tach2_cb_data);
+
+    // Start fans stopped
+    err = stop_fans();
+    if (err < 0) {
+        return err;
+    }
+
+    printk("Cooling system initialized\n");
+    return 0;
+}
+
+// tach monitoring thread
 void tach_monitoring_thread(void *p1, void *p2, void *p3)
 {
-    
     ARG_UNUSED(p1);
     ARG_UNUSED(p2);
     ARG_UNUSED(p3);
 
+    printk("Tach monitoring thread started\n");
 
     while (1) {
-        // Waits for a command
+        // wait for cooling to be enabled (by start_cooling)
         k_sem_take(&cooling_sem, K_FOREVER);
 
-        
-        while(k_sem_take(&cooling_sem, K_NO_WAIT) == 0){
-            double speed = read_tach_speed();
-            if (speed > OPERATING_SPEED + SPEED_ERROR) {
-                //set pwm accordingly
-                current_duty = (current_duty > DUTY_STEP) ? current_duty - DUTY_STEP : 0;
-                set_fan(current_duty);
-                printk("Speed too high: %.1f, current duty: %d%%\n ", speed, current_duty);
+        // monitoring loop
+        while (k_sem_count_get(&cooling_sem) > 0) {
+            // read both tach speeds
+            uint32_t rpm1 = read_tach1_rpm();
+            uint32_t rpm2 = read_tach2_rpm();
+
+            // adjust fan 1 based on tach reading
+            if (rpm1 > OPERATING_SPEED_RPM + SPEED_ERROR_RPM) {
+                current_duty_fan1 = (current_duty_fan1 > DUTY_STEP) ? current_duty_fan1 - DUTY_STEP : 0;
+                set_fan1(current_duty_fan1);
+                printk("Fan 1 speed too high");
+            } else if (rpm1 < OPERATING_SPEED_RPM - SPEED_ERROR_RPM) {
+                current_duty_fan1 = (current_duty_fan1 < 100 - DUTY_STEP) ? current_duty_fan1 + DUTY_STEP : 100;
+                set_fan1(current_duty_fan1);
+                printk("Fan 1 speed too low");
             }
-            else if (speed < OPERATING_SPEED - SPEED_ERROR){
-                current_duty = (current_duty < 100 - DUTY_STEP) ? current_duty + DUTY_STEP : 100;
-                set_fan(current_duty);
-                printk("Speed too low: %.1f, current duty: %d%%\n ", speed, current_duty);
+
+            // adjust fan 2 based on tach 2 reading
+            if (rpm2 > OPERATING_SPEED_RPM + SPEED_ERROR_RPM) {
+                current_duty_fan2 = (current_duty_fan2 > DUTY_STEP) ? current_duty_fan2 - DUTY_STEP : 0;
+                set_fan2(current_duty_fan2);
+                printk("Fan 2 speed too high");
+            } else if (rpm2 < OPERATING_SPEED_RPM - SPEED_ERROR_RPM) {
+                current_duty_fan2 = (current_duty_fan2 < 100 - DUTY_STEP) ? current_duty_fan2 + DUTY_STEP : 100;
+                set_fan2(current_duty_fan2);
+                printk("Fan 2 speed too low");
             }
-        
-        k_sem_give(&cooling_sem);
-        k_msleep(2000);
+            k_msleep(500);  // Check every 500ms
         }
     }
-}
-
-
-
-int set_fan(uint8_t percent_duty){
-    // Start fan at duty_percent * period
-    int flag;
-    uint32_t pulse_us = (period_us * percent_duty) / 100;
-    flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), PWM_USEC(pulse_us));
-    if (flag < 0) {
-        printk("Failed to start PWM: %d\n", flag);
-        return flag;
-    }
-    
-    printk("Fan started (or stopped) at %d%% duty cycle\n", percent_duty);
-    return 0; 
-    
-}
-
-int stop_fan(){
-    // 0 duty cycle = off
-    int flag;
-    flag = pwm_set_dt(&pwm_led0, PWM_USEC(period_us), 0);
-    if (flag < 0) {
-        printk("Failed to start PWM: %d\n", flag);
-        return flag;
-    }
-    
-    printk("stopped fan %d%% duty cycle\n", 0);
-    return 0; 
-
-}
-
-void start_cooling(void) {
-    current_duty = 50;  // Start at 50%
-    set_fan(current_duty);
-    k_sem_give(&cooling_sem);  // Wake up tach monitoring thread
-}
-void stop_cooling(void) {
-    k_sem_take(&cooling_sem, K_NO_WAIT);  // Stop tach monitoring
-    stop_fan(); // stop fan
 }
