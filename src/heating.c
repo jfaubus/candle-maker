@@ -31,6 +31,26 @@ static uint16_t sample_buffer[1];
 //will be used by the state machine
 static volatile float current_temp = 0.0f; 
 
+//atomic guarantees reading and writing happen in the same instruction
+static atomic_t estop_flag = ATOMIC_INIT(0);
+
+
+void set_estop_flag(void)
+{
+    atomic_set(&estop_flag, 1);
+
+}
+
+void clear_estop_flag(void)
+{
+    atomic_set(&estop_flag, 0);
+
+}
+
+bool check_estop_flag(void)
+{
+    return (atomic_get(&estop_flag) != 0);
+}
 
 //Thread must accept three void * args to match K_THREAD_DEFINE 
 // starts temp safety thread after the adc is initialized
@@ -45,16 +65,15 @@ void temp_safety_thread(void *p1, void *p2, void *p3)
     while (!adc_is_ready_dt(&adc_channel)) {
         k_msleep(100);
     }
-    printk("ADC ready, temp safety thread started \n");
+
 
 
     while (1) {
         // cast the return to a float
-        current_temp = (float)read_thermistor_temp();
+        current_temp = read_thermistor_temp();
         if (current_temp > MAX_SAFE_TEMP) {
             gpio_pin_set_dt(&heating_spec, 0);
-            printk("Overheat detected: %.1f°C\n", (double)current_temp);
-            // TODO: Set estop flag somehow?
+            set_estop_flag();
         }
         k_msleep(100);
     }
@@ -65,7 +84,7 @@ K_THREAD_DEFINE(temp_thread_id, TEMPTHREAD_STACK_SIZE,
                 TEMPTHREAD_PRIORITY, 0, 0);
 
 // function to toggle the heating element pin high or low
-int set_heating(uint16_t stat){
+int set_heating(uint8_t stat){
     int err;
     err = gpio_pin_set_dt(&heating_spec, stat);
     if (err < 0){
@@ -76,7 +95,7 @@ int set_heating(uint16_t stat){
 }
 
 // function to read thermistor temperature from the adc
-double read_thermistor_temp(void) { 
+float read_thermistor_temp(void) { 
     int err;
     int32_t adc_value = 0;
     
@@ -118,7 +137,7 @@ double read_thermistor_temp(void) {
     printk("Thermistorrrr ADC raw: %d, mV: %d\n", adc_value, mv_value);
     
     // TODO: Convert mV to temperature
-    return 25.0;  // Placeholder
+    return 25.0f;  // Placeholder
 }
 
 
@@ -161,6 +180,7 @@ int heating_init(void){
         return err;
     }
 
+     clear_estop_flag();
      printk("All initialized (heater_init) \n");
      return 0; 
 }

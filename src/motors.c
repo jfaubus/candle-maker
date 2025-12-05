@@ -40,13 +40,13 @@ int drv8434s_init(void) {
     printk("Initializing DRV8434S drivers...\n");
     
     // Gets the SPI bus device (not the individual driver nodes)
-    const struct device *spi_bus = DEVICE_DT_GET(DT_NODELABEL(spi1));
+    const struct device *spi_bus = DEVICE_DT_GET(DT_NODELABEL(spi2));
 
 
     
     
     if (!device_is_ready(spi_bus)) {
-        printk("ERROR: SPI1 bus not ready!\n");
+        printk("ERROR: SPI2 bus not ready!\n");
         return -1;
     }
     
@@ -65,7 +65,7 @@ int drv8434s_init(void) {
     spi_cfg1.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPHA | SPI_OP_MODE_MASTER;
     spi_cfg1.slave = 0;
     spi_cfg1.cs = (struct spi_cs_control){
-        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi1), cs_gpios, 0),
+        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi2), cs_gpios, 0),
         .delay = 0,
     };
 
@@ -74,7 +74,7 @@ int drv8434s_init(void) {
     spi_cfg2.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPHA | SPI_OP_MODE_MASTER;
     spi_cfg2.slave = 1;
     spi_cfg2.cs = (struct spi_cs_control){
-        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi1), cs_gpios, 1),
+        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi2), cs_gpios, 1),
         .delay = 0,
     };
 
@@ -83,7 +83,7 @@ int drv8434s_init(void) {
     spi_cfg3.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPHA | SPI_OP_MODE_MASTER;
     spi_cfg3.slave = 2;
     spi_cfg3.cs = (struct spi_cs_control){
-        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi1), cs_gpios, 2),
+        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi2), cs_gpios, 2),
         .delay = 0,
     };
 
@@ -92,7 +92,7 @@ int drv8434s_init(void) {
     spi_cfg4.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPHA | SPI_OP_MODE_MASTER;
     spi_cfg4.slave = 3;
     spi_cfg4.cs = (struct spi_cs_control){
-        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi1), cs_gpios, 3),
+        .gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(spi2), cs_gpios, 3),
         .delay = 0,
     };
 
@@ -208,7 +208,7 @@ int drv8434s_read_reg(const struct device *spi_dev, const struct spi_config *spi
 
 
 // Helper function to get the right SPI config for a motor
-static const struct device* get_motor_spi_dev(uint8_t motor_id) {
+const struct device* get_motor_spi_dev(uint8_t motor_id) {
     switch(motor_id) {
         case 1: return spi_dev1;
         case 2: return spi_dev2;
@@ -218,7 +218,8 @@ static const struct device* get_motor_spi_dev(uint8_t motor_id) {
     }
 }
 
-static struct spi_config* get_motor_spi_cfg(uint8_t motor_id) {
+
+struct spi_config* get_motor_spi_cfg(uint8_t motor_id) {
     switch(motor_id) {
         case 1: return &spi_cfg1;
         case 2: return &spi_cfg2;
@@ -362,9 +363,9 @@ void motor_thread_entry(void *p1, void *p2, void *p3) {
             
              // set direction in CTRL3
              // 1000 0000 = 0x80
-            uint8_t ctrl3_val = 0x80;
-            if (!forward) {
-                ctrl3_val |= 0x00;
+            uint8_t ctrl3_val = 0x00;
+            if (forward) {
+                ctrl3_val |= 0x80;
             }
             drv8434s_write_reg(dev, cfg, DRV8434S_CTRL3_REG, ctrl3_val);
             

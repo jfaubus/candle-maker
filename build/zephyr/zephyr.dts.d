@@ -39,4 +39,4 @@ empty_file.o: /Users/juliafaubus/zephyr-project/zephyr/misc/empty_file.c \
  /Users/juliafaubus/zephyr-project/zephyr/boards/st/nucleo_f446re/st_morpho_connector.dtsi \
  /Users/juliafaubus/zephyr-project/zephyr/include/zephyr/dt-bindings/gpio/st-morpho-header.h \
  /Users/juliafaubus/zephyr-project/zephyr/include/zephyr/dt-bindings/input/input-event-codes.h \
- app.overlay
+ /Users/juliafaubus/zephyr-project/candle-maker/nucleo_f446re.overlay

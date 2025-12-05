@@ -95,31 +95,28 @@
 #include "cooling.h"
 #include "servos.h"
 #include "sensors.h"
-#include "motors.h"   
+#include "motor_step.h"   
 
 
 //has an encoder
- #define SCENT_ID 1
- #define SCENT_STEPS 3200
- #define SCENT_SPEED 5
- #define SCENT_DIR 1
+#define SCENT_ID        MOTOR_1
+#define SCENT_STEPS     3200
+#define SCENT_SPEED_US  1000    // 1ms per step = 1000 steps/sec
 
- #define WAX_ID 2
- #define WAX_STEPS 3200
- #define WAX_SPEED 5
- #define WAX_DIR 1
+#define WAX_ID          MOTOR_3
+#define WAX_STEPS       3200
+#define WAX_SPEED_US    2000    // 2ms per step = 500 steps/sec
  
- #define STIR_ID 3
- #define STIR_STEPS 3200
- #define STIR_SPEED 5
- #define STIR_DIR 1
+#define STIR_ID         MOTOR_2
+#define STIR_STEPS      3200
+#define STIR_SPEED_US   1000    // 1ms per step = 1000 steps/sec
 
- #define LEAD_SCREW_ID 4
- #define LEAD_SCREW_STEPS 3200
- #define LEAD_SCREW_SPEED 5
- #define LEAD_SCREW_DIR 1
- #define LEAD_SCREW_DIR_REVERSE 0
- //ADD MOTOR DIRECTION****************************************************************************************************************
+#define LEAD_SCREW_ID       MOTOR_4
+#define LEAD_SCREW_STEPS    3200
+#define LEAD_SCREW_SPEED_US 2000    // 2ms per step = 500 steps/sec
+
+
+
 
 
 K_MSGQ_DEFINE(state_msgq, sizeof(enum state), 10, 4);
@@ -173,6 +170,10 @@ void main(void) {
 
 
     while (1) {
+        if (check_estop_flag() && machine.current != ESTOP && machine.current != IDLE) {
+            printk("E-stop flag detected! Transitioning to ESTOP state\n");
+            machine.current = ESTOP;
+        }
 
         // Simple state execution
         switch(machine.current) {
@@ -181,10 +182,9 @@ void main(void) {
                 set_status_led_mode(LED_ON);
                 //DISPLAY: IDLE STATE
                 printk("Waiting for button press...\n");
-                //*************Button_pressed() < 2 sec ? 1 : 0 ******************/
+
                 // wait for button press
                 wait_for_button_press();
-                //WHEN BUTTON IS PRESSED, WAIT FOR BUTTON TO NO LONGER BE PRESSED AND THEN:**************
                 // if press less than 2000ms
                 if (get_button_press_duration() <= 2000) {
                     machine.current = INIT_CHECK;
@@ -207,7 +207,8 @@ void main(void) {
                 // wait for user to press the start button again
                 wait_for_button_press();
 
-                motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
+               //motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
+                motor_move_steps(SCENT_ID, SCENT_STEPS, MOTOR_DIR_CW, SCENT_SPEED_US);
                 
                 machine.wash_cycle = 1;
                 // turns status LED off
@@ -327,7 +328,15 @@ void main(void) {
                     machine.current = ESTOP;
                     break;
                 }
-                //BRING STIRRING MACHINE BACK UP************************************************************************************
+
+
+                //BRING STIRRING MECHANISM BACK UP
+                err = motor_move(LEAD_SCREW_ID, -LEAD_SCREW_STEPS, LEAD_SCREW_SPEED);
+                if (err < 0) {
+                    printk("Failed to move lead screw motor: %d\n", err);
+                    machine.current = ESTOP;
+                    break;
+                }
                 machine.current = WICK_INSERT;
                 break;
 
@@ -343,6 +352,8 @@ void main(void) {
                     machine.current = ESTOP;
                     break;
                 }
+                // start fans here?
+                start_cooling();
                 //drop the wick 
                 err = move_wick_servo();
                 if (err < 0) {
@@ -359,8 +370,7 @@ void main(void) {
             case COOLING:
                 printk("Starting cooling process");
                 //DISPLAY: COOLING STATE
-                // start fan
-                start_cooling();
+
                 // WHEN TEMP REACHED/X AMOUNT OF TIME PASSED**** NEED TO TEST
                 k_msleep(30000); 
                 // stop fan
@@ -396,8 +406,9 @@ void main(void) {
                 stop_cooling();
                 // DISPLAY: EMERGENCY STOP- press button to reset
                 
-                printk("System halted. Press button to reset.\n");
+                printk("System stopped. Press button to reset.\n");
                 wait_for_button_press();
+                clear_estop_flag();
                 
                 // Reset and return to IDLE
                 machine.wash_cycle = false;

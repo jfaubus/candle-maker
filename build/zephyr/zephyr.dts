@@ -1036,7 +1036,7 @@
 			label = "Heating Control Pin";
 		};
 		testing_output: testing_control {
-			gpios = < &gpiob 0x9 0x0 >;
+			gpios = < &gpiob 0xc 0x0 >;
 			label = "Testing Flash Pin";
 		};
 		gpio_status_led: status_led {

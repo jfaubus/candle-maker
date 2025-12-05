@@ -8,6 +8,8 @@ static const struct gpio_dt_spec testing_gpio = GPIO_DT_SPEC_GET(DT_NODELABEL(te
 void main(void)
 {
     printk("Starting GPIO test\n");
+    printk("Testing GPIO spec: port=%s pin=%d\n", 
+       testing_gpio.port->name, testing_gpio.pin);
     
     // Check if GPIO is ready
     if (!gpio_is_ready_dt(&testing_gpio)) {
@@ -23,7 +25,7 @@ void main(void)
     }
     
     // Set it HIGH
-    gpio_pin_set_dt(&testing_gpio, 0);
+    gpio_pin_set_dt(&testing_gpio, 1);
     printk("GPIO set HIGH on PB9\n");
     
     // Done - just loop forever

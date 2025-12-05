@@ -7,5 +7,5 @@ project(candle-maker)
 
 
 target_sources(app PRIVATE 
-    src/servos.c
+    src/flashingtest.c
 )

@@ -51,6 +51,7 @@ struct motor_command {
 #define MOTOR_THREAD_PRIORITY 5
 
 // Function declarations
+int motor_init_for_spi_stepping(uint8_t motor_id);
 int motor_move(uint8_t motor_id, int32_t steps, uint32_t speed_hz);
 void motor_thread_entry(void *p1, void *p2, void *p3);
 int drv8434s_init(void);
@@ -64,6 +65,9 @@ int drv8434s_read_reg(const struct device *spi_dev,
                       uint8_t *value);
 // stops all motors -> for estop
 void stop_all_motors(void);
+// Added these declarations for the motor testing script
+const struct device* get_motor_spi_dev(uint8_t motor_id);
+struct spi_config* get_motor_spi_cfg(uint8_t motor_id);
 
 #endif // MOTORS_H
 

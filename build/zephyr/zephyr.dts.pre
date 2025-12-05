@@ -2828,7 +2828,7 @@ arduino_spi: &spi1 {};
  };
 };
 # 0 "<command-line>" 2
-# 1 "./app.overlay" 1
+# 1 "/Users/juliafaubus/zephyr-project/candle-maker/nucleo_f446re.overlay" 1
 / {
     zephyr,user {
 
@@ -2865,7 +2865,7 @@ arduino_spi: &spi1 {};
         };
 
         testing_output: testing_control {
-            gpios = <&gpiob 9 (0 << 0)>;
+            gpios = <&gpiob 12 (0 << 0)>;
             label = "Testing Flash Pin";
         };
 
@@ -2959,7 +2959,7 @@ arduino_spi: &spi1 {};
 
 
     vref-mv = <3300>;
-# 139 "./app.overlay"
+# 139 "/Users/juliafaubus/zephyr-project/candle-maker/nucleo_f446re.overlay"
     pinctrl-0 = <&adc1_in10_pc0>;
     pinctrl-names = "default";
     status = "okay";
@@ -3019,11 +3019,13 @@ arduino_spi: &spi1 {};
                <&gpioc 13 (1 << 0)>;
 
 
+
     drv8434s_1: drv8434s@0 {
         compatible = "spi-device";
         reg = <0>;
         spi-max-frequency = <1000000>;
     };
+
 
 
     drv8434s_2: drv8434s@1 {
@@ -3033,11 +3035,13 @@ arduino_spi: &spi1 {};
     };
 
 
+
     drv8434s_3: drv8434s@2 {
         compatible = "spi-device";
         reg = <2>;
         spi-max-frequency = <1000000>;
     };
+
 
 
     drv8434s_4: drv8434s@3 {

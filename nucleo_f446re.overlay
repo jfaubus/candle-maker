@@ -23,18 +23,17 @@
         
     };
 
-    gpio_output: gpio_output {
+       gpio_output: gpio_output {
         compatible = "gpio-leds";
         status = "okay";
 
-        // gpio to control the heating element switch
         heating_output: heat_control {
             gpios = <&gpiob 4 GPIO_ACTIVE_HIGH>;
             label = "Heating Control Pin";
         };
-        //DELETE AFTER TESTING****************************************************************************
+
         testing_output: testing_control {
-            gpios = <&gpiob 9 GPIO_ACTIVE_HIGH>;
+            gpios = <&gpiob 12 GPIO_ACTIVE_HIGH>;
             label = "Testing Flash Pin";
         };
 
@@ -42,10 +41,44 @@
             gpios = <&gpiob 1 GPIO_ACTIVE_LOW>; 
             label = "Status LED Pin";
         };
-
     };
 
-     // Inputs go in a gpio-keys node
+    // Motor pins - OUTSIDE gpio_output, with non-conflicting pins
+    motor_pins {
+        // Motor 1 - Scent dispensing
+        motor1_step_pin: motor1_step {
+            gpios = <&gpioa 8 GPIO_ACTIVE_HIGH>;
+        };
+        motor1_dir_pin: motor1_dir {
+            gpios = <&gpioa 9 GPIO_ACTIVE_HIGH>;
+        };
+
+        // Motor 2 - Stirring 
+        motor2_step_pin: motor2_step {
+            gpios = <&gpioa 10 GPIO_ACTIVE_HIGH>;
+        };
+        motor2_dir_pin: motor2_dir {
+            gpios = <&gpioa 11 GPIO_ACTIVE_HIGH>;
+        };
+
+        // Motor 3 - Wax dispensing
+        motor3_step_pin: motor3_step {
+            gpios = <&gpiob 6 GPIO_ACTIVE_HIGH>;
+        };
+        motor3_dir_pin: motor3_dir {
+            gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
+        };
+
+        // Motor 4 - Lead screw 
+        motor4_step_pin: motor4_step {
+            gpios = <&gpiob 8 GPIO_ACTIVE_HIGH>;
+        };
+        motor4_dir_pin: motor4_dir {
+            gpios = <&gpiob 9 GPIO_ACTIVE_HIGH>;
+        };
+    };
+
+    // Inputs go in a gpio-keys node
     gpio_inputs: gpio_inputs {
         compatible = "gpio-keys";
         status = "okay";
@@ -72,7 +105,7 @@
 
         gpio_tach2: tach_two {
             gpios = <&gpioc 9 GPIO_ACTIVE_LOW>; 
-            label = "Break Beam Pin";
+            label = "Tach Two Pin";
         };
     };
 
@@ -195,6 +228,7 @@
                <&gpioc 13 GPIO_ACTIVE_LOW>; 
     
     // spi device 1 
+    // scent dispensing motor
     drv8434s_1: drv8434s@0 {
         compatible = "spi-device";
         reg = <0>;  // Uses cs-gpios[0]
@@ -202,6 +236,7 @@
     };
     
     // spi device 2
+    // stirring motor
     drv8434s_2: drv8434s@1 {
         compatible = "spi-device";
         reg = <1>;  // Uses cs-gpios[1]
@@ -209,6 +244,7 @@
     };
     
     // spi device 3
+    // wax dispensing motor
     drv8434s_3: drv8434s@2 {
         compatible = "spi-device";
         reg = <2>;  // Uses cs-gpios[2]
@@ -216,6 +252,7 @@
     };
 
      // spi device 4
+     // lead screw motor
     drv8434s_4: drv8434s@3 {
         compatible = "spi-device";
         reg = <3>;  // Uses cs-gpios[3]

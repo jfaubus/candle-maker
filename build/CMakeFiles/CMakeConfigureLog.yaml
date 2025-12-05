@@ -125,7 +125,6 @@ events:
     search_context:
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -201,7 +200,6 @@ events:
     search_context:
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -240,7 +238,6 @@ events:
       - "ccache"
     candidate_directories:
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -258,7 +255,6 @@ events:
       - "/Library/Apple/usr/bin/"
     searched_directories:
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/ccache"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/ccache"
       - "/Users/juliafaubus/anaconda3/bin/ccache"
       - "/opt/homebrew/opt/python/libexec/bin/ccache"
       - "/opt/homebrew/bin/ccache"
@@ -278,7 +274,6 @@ events:
     search_context:
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -469,7 +464,6 @@ events:
     search_context:
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -512,7 +506,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -533,7 +526,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/gperf"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/gperf"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/gperf"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/gperf"
       - "/Users/juliafaubus/anaconda3/bin/gperf"
       - "/opt/homebrew/opt/python/libexec/bin/gperf"
       - "/opt/homebrew/bin/gperf"
@@ -547,7 +539,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -590,7 +581,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -611,7 +601,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/openocd"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/openocd"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/openocd"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/openocd"
       - "/Users/juliafaubus/anaconda3/bin/openocd"
       - "/opt/homebrew/opt/python/libexec/bin/openocd"
     found: "/opt/homebrew/bin/openocd"
@@ -620,7 +609,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -663,7 +651,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -684,7 +671,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/bossac"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/bossac"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/bossac"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/bossac"
       - "/Users/juliafaubus/anaconda3/bin/bossac"
       - "/opt/homebrew/opt/python/libexec/bin/bossac"
       - "/opt/homebrew/bin/bossac"
@@ -706,7 +692,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -749,7 +734,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -770,7 +754,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/imgtool"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/imgtool"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/imgtool"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/imgtool"
       - "/Users/juliafaubus/anaconda3/bin/imgtool"
       - "/opt/homebrew/opt/python/libexec/bin/imgtool"
       - "/opt/homebrew/bin/imgtool"
@@ -781,7 +764,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -828,7 +810,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -875,7 +856,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -918,7 +898,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -939,7 +918,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/dtc"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/dtc"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/dtc"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/dtc"
       - "/Users/juliafaubus/anaconda3/bin/dtc"
       - "/opt/homebrew/opt/python/libexec/bin/dtc"
     found: "/opt/homebrew/bin/dtc"
@@ -948,7 +926,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -995,7 +972,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1042,7 +1018,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1089,7 +1064,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1136,7 +1110,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1183,7 +1156,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1230,7 +1202,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1277,7 +1248,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1324,7 +1294,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1371,7 +1340,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1418,7 +1386,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1465,7 +1432,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1512,7 +1478,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1555,7 +1520,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -1576,7 +1540,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/uname"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/uname"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/uname"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/uname"
       - "/Users/juliafaubus/anaconda3/bin/uname"
       - "/opt/homebrew/opt/python/libexec/bin/uname"
       - "/opt/homebrew/bin/uname"
@@ -1590,7 +1553,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1647,7 +1609,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -1676,9 +1637,6 @@ events:
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/ninja-build"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/ninja"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/samu"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/ninja-build"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/ninja"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/samu"
       - "/Users/juliafaubus/anaconda3/bin/ninja-build"
       - "/Users/juliafaubus/anaconda3/bin/ninja"
       - "/Users/juliafaubus/anaconda3/bin/samu"
@@ -1692,7 +1650,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1743,7 +1700,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1818,7 +1774,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1887,7 +1842,6 @@ events:
     candidate_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -1906,7 +1860,6 @@ events:
     searched_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-dlltool"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-dlltool"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-dlltool"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-dlltool"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-dlltool"
       - "/opt/homebrew/bin/arm-zephyr-eabi-dlltool"
@@ -1924,7 +1877,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-dlltool"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/dlltool"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/dlltool"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/dlltool"
       - "/Users/juliafaubus/anaconda3/bin/dlltool"
       - "/opt/homebrew/opt/python/libexec/bin/dlltool"
       - "/opt/homebrew/bin/dlltool"
@@ -1946,7 +1898,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -1989,7 +1940,6 @@ events:
     candidate_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -2011,7 +1961,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2054,7 +2003,6 @@ events:
     candidate_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -2073,7 +2021,6 @@ events:
     searched_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-tapi"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-tapi"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-tapi"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-tapi"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-tapi"
       - "/opt/homebrew/bin/arm-zephyr-eabi-tapi"
@@ -2091,7 +2038,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-tapi"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/tapi"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/tapi"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/tapi"
       - "/Users/juliafaubus/anaconda3/bin/tapi"
       - "/opt/homebrew/opt/python/libexec/bin/tapi"
       - "/opt/homebrew/bin/tapi"
@@ -2113,7 +2059,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2158,7 +2103,6 @@ events:
     candidate_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -2177,7 +2121,6 @@ events:
     searched_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ar-12.2"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ar-12.2"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ar-12.2"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ar-12.2"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ar-12.2"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ar-12.2"
@@ -2195,7 +2138,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ar-12.2"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ar-12"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ar-12"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ar-12"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ar-12"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ar-12"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ar-12"
@@ -2213,7 +2155,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ar-12"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ar12"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ar12"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ar12"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ar12"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ar12"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ar12"
@@ -2235,7 +2176,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2280,7 +2220,6 @@ events:
     candidate_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -2299,7 +2238,6 @@ events:
     searched_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-12.2"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
@@ -2317,7 +2255,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ranlib-12"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-12"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-12"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ranlib-12"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ranlib-12"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ranlib-12"
@@ -2335,7 +2272,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ranlib-12"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ranlib12"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib12"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib12"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ranlib12"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ranlib12"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ranlib12"
@@ -2357,7 +2293,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2408,7 +2343,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2483,7 +2417,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2554,7 +2487,6 @@ events:
     candidate_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -2573,7 +2505,6 @@ events:
     searched_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ar-12.2"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ar-12.2"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ar-12.2"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ar-12.2"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ar-12.2"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ar-12.2"
@@ -2591,7 +2522,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ar-12.2"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ar-12"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ar-12"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ar-12"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ar-12"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ar-12"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ar-12"
@@ -2609,7 +2539,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ar-12"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ar12"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ar12"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ar12"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ar12"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ar12"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ar12"
@@ -2631,7 +2560,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2676,7 +2604,6 @@ events:
     candidate_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -2695,7 +2622,6 @@ events:
     searched_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-12.2"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
@@ -2713,7 +2639,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ranlib-12.2"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ranlib-12"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-12"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-12"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ranlib-12"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ranlib-12"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ranlib-12"
@@ -2731,7 +2656,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ranlib-12"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ranlib12"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib12"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib12"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ranlib12"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ranlib12"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ranlib12"
@@ -2753,7 +2677,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2800,7 +2723,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2865,7 +2787,6 @@ events:
     candidate_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -2884,7 +2805,6 @@ events:
     searched_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ar-"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ar-"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ar-"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ar-"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ar-"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ar-"
@@ -2902,7 +2822,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ar-"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ar-"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ar-"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ar-"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ar-"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ar-"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ar-"
@@ -2924,7 +2843,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -2972,7 +2890,6 @@ events:
     candidate_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -2991,7 +2908,6 @@ events:
     searched_directories:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ranlib-"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ranlib-"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ranlib-"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ranlib-"
@@ -3009,7 +2925,6 @@ events:
       - "/Library/Apple/usr/bin/arm-zephyr-eabi-gcc-ranlib-"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc-ranlib-"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/arm-zephyr-eabi-gcc-ranlib-"
       - "/Users/juliafaubus/anaconda3/bin/arm-zephyr-eabi-gcc-ranlib-"
       - "/opt/homebrew/opt/python/libexec/bin/arm-zephyr-eabi-gcc-ranlib-"
       - "/opt/homebrew/bin/arm-zephyr-eabi-gcc-ranlib-"
@@ -3031,7 +2946,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -3072,7 +2986,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -3093,7 +3006,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/ccache"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/ccache"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/ccache"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/ccache"
       - "/Users/juliafaubus/anaconda3/bin/ccache"
       - "/opt/homebrew/opt/python/libexec/bin/ccache"
       - "/opt/homebrew/bin/ccache"
@@ -3115,7 +3027,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -3156,7 +3067,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -3177,7 +3087,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/puncover"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/puncover"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/puncover"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/puncover"
       - "/Users/juliafaubus/anaconda3/bin/puncover"
       - "/opt/homebrew/opt/python/libexec/bin/puncover"
       - "/opt/homebrew/bin/puncover"
@@ -3199,7 +3108,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -3240,7 +3148,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/"
       - "/Users/juliafaubus/anaconda3/bin/"
       - "/opt/homebrew/opt/python/libexec/bin/"
       - "/opt/homebrew/bin/"
@@ -3261,7 +3168,6 @@ events:
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/sbin/pahole"
       - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr/pahole"
       - "/Users/juliafaubus/zephyr-project/zephyr/scripts/pahole"
-      - "/Users/juliafaubus/generate-firmware/zephyr/scripts/pahole"
       - "/Users/juliafaubus/anaconda3/bin/pahole"
       - "/opt/homebrew/opt/python/libexec/bin/pahole"
       - "/opt/homebrew/bin/pahole"
@@ -3283,7 +3189,6 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"
@@ -3396,7 +3301,57 @@ events:
         - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
       ENV{PATH}:
         - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
-        - "/Users/juliafaubus/generate-firmware/zephyr/scripts"
+        - "/Users/juliafaubus/anaconda3/bin"
+        - "/opt/homebrew/opt/python/libexec/bin"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/Library/Frameworks/Python.framework/Versions/3.10/bin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Library/Apple/usr/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/Users/juliafaubus/zephyr-project/zephyr/cmake/compiler/gcc/target.cmake:9 (find_program)"
+      - "/Users/juliafaubus/zephyr-project/zephyr/cmake/modules/FindTargetTools.cmake:103 (include)"
+      - "/Users/juliafaubus/zephyr-project/zephyr/cmake/modules/kernel.cmake:25 (find_package)"
+      - "/Users/juliafaubus/zephyr-project/zephyr/cmake/modules/zephyr_default.cmake:141 (include)"
+      - "/Users/juliafaubus/zephyr-project/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:66 (include)"
+      - "/Users/juliafaubus/zephyr-project/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:97 (include_boilerplate)"
+      - "CMakeLists.txt:4 (find_package)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc"
+    candidate_directories:
+      - "/Users/juliafaubus/zephyr-sdk-0.17.4/"
+    found: "/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc"
+    search_context:
+      CMAKE_PREFIX_PATH:
+        - "/Users/juliafaubus/zephyr-sdk-0.17.4/sysroots/arm64-pokysdk-linux/usr"
+      ENV{PATH}:
+        - "/Users/juliafaubus/zephyr-project/zephyr/scripts"
         - "/Users/juliafaubus/anaconda3/bin"
         - "/opt/homebrew/opt/python/libexec/bin"
         - "/opt/homebrew/bin"

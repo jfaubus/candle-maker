@@ -124,8 +124,8 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 //Flags used by the CXX compiler during RELWITHDEBINFO builds.
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
-//C compiler
-CMAKE_C_COMPILER:STRING=/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc
+//Path to a program.
+CMAKE_C_COMPILER:FILEPATH=/Users/juliafaubus/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
@@ -331,7 +331,7 @@ DTC:FILEPATH=/opt/homebrew/bin/dtc
 // parameter. These settings will override the settings in the
 // board's .dts file. Multiple files may be listed, e.g. DTC_OVERLAY_FILE="dts1.overlay
 // dts2.overlay"
-DTC_OVERLAY_FILE:STRING=app.overlay
+DTC_OVERLAY_FILE:STRING=/Users/juliafaubus/zephyr-project/candle-maker/nucleo_f446re.overlay
 
 //Linker BFD compatibility (compiler reported)
 GNULD_LINKER_IS_BFD:BOOL=ON
@@ -478,8 +478,6 @@ CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_CXX_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_CXX_FLAGS_RELWITHDEBINFO
 CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: CMAKE_C_COMPILER
-CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_AR
 CMAKE_C_COMPILER_AR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_RANLIB
@@ -609,6 +607,8 @@ _Python3_EXECUTABLE:INTERNAL=/Library/Frameworks/Python.framework/Versions/3.10/
 //Python3 Properties
 _Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;10;5;64;<none>;cpython-310-darwin.so;abi3;/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10;/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10;/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages;/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages
 _Python3_INTERPRETER_SIGNATURE:INTERNAL=594142bdbe30db65b6f807bd0a7c5f45
+//Interpreter reason failure
+_Python3_Interpreter_REASON_FAILURE:INTERNAL=
 //NumPy reason failure
 _Python3_NumPy_REASON_FAILURE:INTERNAL=
 
