@@ -38,10 +38,10 @@ extern struct k_mutex spi_mutex;
 
 // Motor command structure
 struct motor_command {
-    uint8_t motor_id;      // 1, 2, 3, 4, or 5
-    int32_t steps;         // Positive = forward, negative = reverse
-    uint32_t speed_hz;     // Steps per second
-    bool in_use;           // Flag to indicate if command is active
+    uint8_t motor_id; // 1, 2, 3, 4, or 5
+    int32_t steps; // Positive = forward, negative = reverse
+    uint32_t speed_hz; // Steps per second
+    bool in_use; // Flag to indicate if command is active
     struct k_sem completion_sem; 
 };
 
@@ -50,19 +50,14 @@ struct motor_command {
 #define MOTOR_THREAD_STACK_SIZE 2048
 #define MOTOR_THREAD_PRIORITY 5
 
-// Function declarations
+// initializes the motor driver for controlling the motor using spi
 int motor_init_for_spi_stepping(uint8_t motor_id);
+// stepping the motor
 int motor_move(uint8_t motor_id, int32_t steps, uint32_t speed_hz);
 void motor_thread_entry(void *p1, void *p2, void *p3);
 int drv8434s_init(void);
-int drv8434s_write_reg(const struct device *spi_dev, 
-                       const struct spi_config *spi_cfg,
-                       uint8_t reg, 
-                       uint8_t value);
-int drv8434s_read_reg(const struct device *spi_dev,
-                      const struct spi_config *spi_cfg,
-                      uint8_t reg,
-                      uint8_t *value);
+int drv8434s_write_reg(const struct device *spi_dev, const struct spi_config *spi_cfg, uint8_t reg, uint8_t value);
+int drv8434s_read_reg(const struct device *spi_dev, const struct spi_config *spi_cfg,uint8_t reg, uint8_t *value);
 // stops all motors -> for estop
 void stop_all_motors(void);
 // Added these declarations for the motor testing script

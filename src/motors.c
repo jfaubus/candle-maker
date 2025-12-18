@@ -1,11 +1,16 @@
 
 #include "motors.h"
-
+// This file has all of the helper functions for stepping the motors
+// The motors were stepped using SPI (which isnt recommended going forward)
+// To step the motors once you have to write a bit in one of the motor drivers registers high 
+// So, to continuosly step you have to constantly write the bit high (it goes low automatically)
+// This means you need a thread for continuous motor movement and two mutexes to prevent race conditions
+// One mutex is to prevent multiple writes/reads over spi and the other mutex is for changing the motor command queue
 
 
 
 // Motor command queue (one command per motor)
-static struct motor_command motor_commands[4] = {0};
+struct motor_command motor_commands[4] = {0};
 
 // Mutex for motor command access
 K_MUTEX_DEFINE(motor_cmd_mutex);
@@ -37,7 +42,7 @@ struct spi_config spi_cfg4;
 
 
 int drv8434s_init(void) {
-    printk("Initializing DRV8434S drivers...\n");
+    printk("Initializing DRV8434S drivers\n");
     
     // Gets the SPI bus device (not the individual driver nodes)
     const struct device *spi_bus = DEVICE_DT_GET(DT_NODELABEL(spi2));
@@ -46,7 +51,7 @@ int drv8434s_init(void) {
     
     
     if (!device_is_ready(spi_bus)) {
-        printk("ERROR: SPI2 bus not ready!\n");
+        printk("ERROR: SPI2 bus not ready\n");
         return -1;
     }
     

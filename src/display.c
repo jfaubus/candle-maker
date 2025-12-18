@@ -1,3 +1,7 @@
+// this file was for interfacing between the main state machine and the display state machine
+// the display is controlled by its own thread with its own states for each screen
+// this file was never finished because we didnt have time to program the screen 
+
 #include "state_machine.h"
 #include <lvgl.h>
 

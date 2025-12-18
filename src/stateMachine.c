@@ -1,11 +1,6 @@
 /*
- * TODO:
- * encoder
- * processing thermistor and tach input
- * sending UI messages (add message queue put in between state transitions)
- * talk to nikki about what happens in estop state
- * motor driver  (testing)
- *      
+ * This is the state machine 
+ * Every state is complete except for the Estop state
 */
 
 
@@ -85,7 +80,7 @@
   *  scent (HANNAH) = 1
   #  wax (NICK) = 2
   #  stirring (DEVEN) = 3
-  # wick (SACHIN) = 4 -> special case
+
  
  */
 
@@ -99,21 +94,21 @@
 
 
 //has an encoder
-#define SCENT_ID        MOTOR_1
-#define SCENT_STEPS     3200
-#define SCENT_SPEED_US  1000    // 1ms per step = 1000 steps/sec
+#define SCENT_ID MOTOR_1
+#define SCENT_STEPS 3200
+#define SCENT_SPEED 1000    // 1 ms per step = 1000 steps/sec
 
-#define WAX_ID          MOTOR_3
-#define WAX_STEPS       3200
-#define WAX_SPEED_US    2000    // 2ms per step = 500 steps/sec
+#define WAX_ID MOTOR_3
+#define WAX_STEPS 3200
+#define WAX_SPEED 2000    // 2 ms per step = 500 steps/sec
  
-#define STIR_ID         MOTOR_2
-#define STIR_STEPS      3200
-#define STIR_SPEED_US   1000    // 1ms per step = 1000 steps/sec
+#define STIR_ID MOTOR_2
+#define STIR_STEPS 3200
+#define STIR_SPEED 1000    // 1 ms per step = 1000 steps/sec
 
-#define LEAD_SCREW_ID       MOTOR_4
-#define LEAD_SCREW_STEPS    3200
-#define LEAD_SCREW_SPEED_US 2000    // 2ms per step = 500 steps/sec
+#define LEAD_SCREW_ID MOTOR_4
+#define LEAD_SCREW_STEPS 3200
+#define LEAD_SCREW_SPEED 2000    // 2 ms per step = 500 steps/sec
 
 
 
@@ -150,7 +145,7 @@ void main(void) {
         return;
     }
 
-    err = drv8434s_init();
+    err = motor_init();
     if (err < 0) {
         printk("Failed to init motors: %d\n", err);
         return;
@@ -207,8 +202,8 @@ void main(void) {
                 // wait for user to press the start button again
                 wait_for_button_press();
 
-               //motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
-                motor_move_steps(SCENT_ID, SCENT_STEPS, MOTOR_DIR_CW, SCENT_SPEED_US);
+                motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
+                //motor_move_steps(SCENT_ID, SCENT_STEPS, MOTOR_DIR_CW, SCENT_SPEED_US);
                 
                 machine.wash_cycle = 1;
                 // turns status LED off
@@ -272,6 +267,7 @@ void main(void) {
                 // DISPLAY: WAX DISPENSE
                 printk("Dispensing wax...\n");
                 err = motor_move(WAX_ID, WAX_STEPS, WAX_SPEED);
+                //motor_move_steps(WAX_ID, WAX_STEPS, MOTOR_DIR_CW, WAX_SPEED_US);
                 if (err < 0) {
                     printk("Failed to move wax dispendsing motor: %d\n", err);
                     machine.current = ESTOP;
@@ -299,15 +295,13 @@ void main(void) {
                 printk("dispensing scent");
                 if(machine.wash_cycle == 1){
                      err = motor_move(SCENT_ID, SCENT_STEPS + 3200, SCENT_SPEED);
+                     //motor_move_steps(SCENT_ID, SCENT_STEPS + 3200, MOTOR_DIR_CW, SCENT_SPEED_US);
                 }
                 else{
                      err = motor_move(SCENT_ID, SCENT_STEPS, SCENT_SPEED);
+                     //motor_move_steps(SCENT_ID, SCENT_STEPS, MOTOR_DIR_CW, SCENT_SPEED_US);
                 }
-                if (err < 0) {
-                    printk("Failed to move scent dispensing motor: %d\n", err);
-                    machine.current = ESTOP;
-                    break;
-                }
+
                 machine.current = STIRRING;
                 break;
 
@@ -316,27 +310,13 @@ void main(void) {
                 printk("stirring the wax");
                 // lowers stirring mechanism
                 err = motor_move(LEAD_SCREW_ID, LEAD_SCREW_STEPS, LEAD_SCREW_SPEED);
-                if (err < 0) {
-                    printk("Failed to move lead screw motor: %d\n", err);
-                    machine.current = ESTOP;
-                    break;
-                }
+                //motor_move_steps(LEAD_SCREW_ID, LEAD_SCREW_STEPS, MOTOR_DIR_CW, LEAD_SCREW_SPEED_US);
+
                 // starts stirring mechanism
-                err = motor_move(STIR_ID, STIR_STEPS, STIR_SPEED);
-                if (err < 0) {
-                    printk("Failed to move stirring motor: %d\n", err);
-                    machine.current = ESTOP;
-                    break;
-                }
+                motor_move(STIR_ID, STIR_STEPS, STIR_SPEED_HZ);
+                //bring stirring mech back up
+                motor_move(LEAD_SCREW_ID, -LEAD_SCREW_STEPS, LEAD_SCREW_SPEED);  
 
-
-                //BRING STIRRING MECHANISM BACK UP
-                err = motor_move(LEAD_SCREW_ID, -LEAD_SCREW_STEPS, LEAD_SCREW_SPEED);
-                if (err < 0) {
-                    printk("Failed to move lead screw motor: %d\n", err);
-                    machine.current = ESTOP;
-                    break;
-                }
                 machine.current = WICK_INSERT;
                 break;
 
@@ -401,7 +381,7 @@ void main(void) {
 
                  // Stop everything 
                  // NEED TO STOP SERVOS****************************************************
-                stop_all_motors();
+                //stop_all_motors();
                 set_heating(0);
                 stop_cooling();
                 // DISPLAY: EMERGENCY STOP- press button to reset

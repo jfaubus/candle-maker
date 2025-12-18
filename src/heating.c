@@ -1,4 +1,8 @@
-// heating_init() init function to configure the healing element gpio and thermistor adc 
+// This file is for interacting with the heating element and the temperature monitoring thread
+// See heating.h for function descriptions
+
+
+// heating_init() init function to configure the heating element gpio and thermistor adc 
 // set_heating() function to toggle the heating element pin high or low
 //      -> will need semaphore because of estop? But need to confirm estop will even interrupt that 
 // read_thermistor_temp() function to read thermistor temperature
@@ -6,6 +10,7 @@
 //      
 // temp_safety_thread() starts a thread that reads from the adc -> prints the raw and processed value and checks if its too high
 //      -> need to set Estop flag
+
 
 
 #include <zephyr/kernel.h>
@@ -40,6 +45,8 @@ void set_estop_flag(void)
     atomic_set(&estop_flag, 1);
 
 }
+
+
 
 void clear_estop_flag(void)
 {
@@ -142,7 +149,7 @@ float read_thermistor_temp(void) {
 
 
 
-
+// helper function- returns current temp
 float get_current_temp(void) {
     // no race conditions because a float is 32 bits so writing is an atomic operation
     return current_temp;

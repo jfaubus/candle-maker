@@ -1,11 +1,9 @@
-// need to set up pwm for wick and door servo in device tree
-// need to add break beam gpio in the device tree
-// need to put in sachins motor special case with the ISR and message queue + extra rotations to cover the hole
+// this is the program to move the servo motors for the door and to handle the wick placement servo 
+// + stop it when the thru beam detects the wick
 
-// something to keep in mind:
-// When working with edge-triggered interrupts, some common problems include:
-// False triggers (glitches): High-speed processors can detect very short glitches or noise as edges. 
-// Hardware or software debouncing might be necessary.
+
+// working with edge-triggered interrupts so need debouncing for false triggers
+
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/pwm.h>

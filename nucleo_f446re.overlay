@@ -1,7 +1,5 @@
 / {
     zephyr,user {
-        //io-channels = <&adc1 1>, io-channels = <&adc1 2>, io-channels = <&adc1 3>;
-        //gpios = <&gpioc 14 GPIO_ACTIVE_HIGH>; // use this later for heater gpio
         io-channels = <&adc1 10>;
     };
 
@@ -10,7 +8,6 @@
         pwm-fan2 = &fan_pwm2;
         pwm-door = &pwm_door;
         pwm-wick = &pwm_wick;
-        //tach-input = &tach_input;
         heating-output = &heating_output;
         testing-output = &testing_output;
         limit-sw = &limit_switch_gpio;
@@ -19,13 +16,11 @@
         status-led = &gpio_status_led;
         gpio-tach1 = &gpio_tach1;
         gpio-tach2 = &gpio_tach2;
-
-        
     };
 
-       gpio_output: gpio_output {
+    gpio_output: gpio_output {
         compatible = "gpio-leds";
-        status = "okay";
+        status = "disabled";
 
         heating_output: heat_control {
             gpios = <&gpiob 4 GPIO_ACTIVE_HIGH>;
@@ -43,45 +38,57 @@
         };
     };
 
-    // Motor pins - OUTSIDE gpio_output, with non-conflicting pins
-    motor_pins {
-        // Motor 1 - Scent dispensing
-        motor1_step_pin: motor1_step {
-            gpios = <&gpioa 8 GPIO_ACTIVE_HIGH>;
-        };
-        motor1_dir_pin: motor1_dir {
-            gpios = <&gpioa 9 GPIO_ACTIVE_HIGH>;
-        };
 
-        // Motor 2 - Stirring 
+motor_gpio_outputs: motor_gpio_outputs {
+    compatible = "gpio-leds";
+    status = "okay";
+
+    motor1_step_pin: motor1_step {
+         gpios = <&gpioa 10 GPIO_ACTIVE_HIGH>;
+        label = "Motor 1 Step Pin";
+    };
+    
+    motor1_dir_pin: motor1_dir {
+        gpios = <&gpioa 11 GPIO_ACTIVE_HIGH>;
+        label = "Motor 1 Dir Pin";
+    };
+
+
         motor2_step_pin: motor2_step {
-            gpios = <&gpioa 10 GPIO_ACTIVE_HIGH>;
+            gpios = <&gpioa 4 GPIO_ACTIVE_HIGH>;  // Changed from PA8 to PC0
+            label = "Motor 2 Step Pin";
         };
+        
         motor2_dir_pin: motor2_dir {
-            gpios = <&gpioa 11 GPIO_ACTIVE_HIGH>;
+            gpios = <&gpioc 1 GPIO_ACTIVE_HIGH>;  // Changed from PA9 to PC1
+            label = "Motor 2 Dir Pin";
         };
 
-        // Motor 3 - Wax dispensing
         motor3_step_pin: motor3_step {
             gpios = <&gpiob 6 GPIO_ACTIVE_HIGH>;
+            label = "Motor 3 Step Pin";
         };
+        
         motor3_dir_pin: motor3_dir {
             gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
+            label = "Motor 3 Dir Pin";
         };
 
-        // Motor 4 - Lead screw 
         motor4_step_pin: motor4_step {
             gpios = <&gpiob 8 GPIO_ACTIVE_HIGH>;
+            label = "Motor 4 Step Pin";
         };
+        
         motor4_dir_pin: motor4_dir {
             gpios = <&gpiob 9 GPIO_ACTIVE_HIGH>;
+            label = "Motor 4 Dir Pin";
         };
     };
 
     // Inputs go in a gpio-keys node
     gpio_inputs: gpio_inputs {
         compatible = "gpio-keys";
-        status = "okay";
+        status = "disabled";
         
         limit_switch_gpio: limit_switch {
             gpios = <&gpiob 0 GPIO_ACTIVE_LOW>;
@@ -112,9 +119,9 @@
 
   pwm_node {
         compatible = "pwm-leds";
-        status = "okay";
+        status = "disabled";
 
-        // Whatever PWM connected to PC6************************************************************************************
+        // Whatever  connected to PC6************************************************************************************
         // PC6 is TIM3_CH1*, TIM8_CH1
         fan_pwm1: fan_ctrl_pwm1 {
             pwms = <&pwm3 1 PWM_USEC(500) PWM_POLARITY_NORMAL>;
@@ -171,7 +178,7 @@
 
     pinctrl-0 = <&adc1_in10_pc0>;
     pinctrl-names = "default";
-    status = "okay";
+    status = "disabled";
     
     // adc channel for thermistor -> Whatver ADC connected to PC0 ******************************************
     // ADC123_IN0
@@ -188,7 +195,7 @@
 
 
 &timers1 {
-    status = "okay";
+    status = "disabled";
      st,prescaler = <8399>;  
     // Timer for door servo pwm -> TIM1_CH1N PB13************************how to configure if N******************
     // Timer for wick servo pwm -> TIM1_CH2N PB14************************how to configure if N******************
@@ -203,7 +210,7 @@
 };
 
 &timers3 {
-    status = "okay";
+    status = "disabled";
     st,prescaler = <8399>;  
     // Timer 1 for fan 1 pwm -> TIM3_CH1 PC6
      // Timer 2 for fan 2 pwm -> TIM3_CH2 PC7

@@ -1,5 +1,9 @@
-//THIS IS FOR OUR SENSORS -> limit switch + start button (might need an ISR)
-// is limit switch active low
+// The name of this file is a little misleading because it was originally for sensors that later got removed
+// This file is for the status LED thread(with different blinking modes), the interrupt for the start button
+// with helper function to determine how long the button was presed and poling the limit switch
+// see sensors.h for functionl signatures (has descriptions)
+
+// limit switch active low
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>

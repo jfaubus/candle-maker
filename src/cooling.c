@@ -1,3 +1,11 @@
+// This is the program to control the fans
+// Two fans so two PWM signals and two TACH inputs
+// Uses interrupts to update the tach pulse counters and a thread with helper functions 
+// to appropiately update the PWM signal for the fans
+// This file was never fully tested so its missing some definitions like target RPM and tolerance
+// I did test the PWM signals and tach reading separately and it worked
+// See cooling.h for helper function descriptions
+
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
@@ -55,6 +63,7 @@ void tach2_interrupt_handler(const struct device *dev, struct gpio_callback *cb,
     tach2_pulse_count++;
 }
 
+// sets pwm signal for fan 1
 int set_fan1(uint8_t percent_duty)
 {
     // Start fan at duty_percent * period
@@ -68,6 +77,7 @@ int set_fan1(uint8_t percent_duty)
     return 0;
 }
 
+// sets pwm signal for fan 2
 int set_fan2(uint8_t percent_duty)
 {
     // Start fan at duty_percent * period
@@ -129,7 +139,7 @@ uint32_t read_tach1_rpm(void)
 
 uint32_t read_tach2_rpm(void)
 {
-    // Reset counter
+    // Resets counter
     tach2_pulse_count = 0;
     
     // Wait for sample period

@@ -1,1 +1,0 @@
-"mcuboot":"/Users/juliafaubus/zephyr-project/bootloader/mcuboot":"/Users/juliafaubus/zephyr-project/bootloader/mcuboot/boot/zephyr/sysbuild"

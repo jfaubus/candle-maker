@@ -7,5 +7,12 @@ project(candle-maker)
 
 
 target_sources(app PRIVATE 
-    src/flashingtest.c
+    src/cooling.c
+    src/display.c
+    src/heating.c
+    src/stateMachine.c
+    src/servos.c
+    src/sensors.c
+    src/motors.c
+
 )

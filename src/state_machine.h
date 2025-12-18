@@ -3,6 +3,7 @@
 
 #include <zephyr/kernel.h> 
 
+// defines the states (used in statemachine.c and display.c)
 enum state {
     IDLE,
     INIT_CHECK,
@@ -18,7 +19,7 @@ enum state {
     WASH_CYCLE
 };
 
-// Declaration for our message queue (this will be defined in my state machine file)
+// Declaration for the message queue to the thread for the display(this will be defined in my state machine file)
 // extern basically means "trust that this is defined somewhere"
 extern struct k_msgq state_msgq;
 
