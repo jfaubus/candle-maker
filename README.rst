@@ -1,97 +1,100 @@
-.. zephyr:code-sample:: blinky
-   :name: Blinky
-   :relevant-api: gpio_interface
+# Candle Maker
 
-   Blink an LED forever using the GPIO API.
+An automated candle-making machine built with embedded systems and real-time operating system principles.
 
-Overview
-********
+## Overview
 
-The Blinky sample blinks an LED forever using the :ref:`GPIO API <gpio_api>`.
+This project automates the candle-making process from wax dispensing to cooling, using a state machine architecture running on Zephyr RTOS. The system coordinates multiple stepper motors, temperature control, and a display to guide users through each step of production.
 
-The source code shows how to:
+## Hardware
 
-#. Get a pin specification from the :ref:`devicetree <dt-guide>` as a
-   :c:struct:`gpio_dt_spec`
-#. Configure the GPIO pin as an output
-#. Toggle the pin forever
+- **Microcontroller:** STM32F446RE
+- **Motor Drivers:** DRV8434S (SPI communication)
+- **Motors:** 
+  - Wax dispenser stepper motor
+  - Scent dispenser stepper motor
+  - Stirrer motor
+- **Display:** LVGL-based screen for user interface
+- **Temperature Control:** Heating element with monitoring
 
-See :zephyr:code-sample:`pwm-blinky` for a similar sample that uses the PWM API instead.
+## Software Architecture
 
-.. _blinky-sample-requirements:
+### State Machine
+The system operates through distinct states, each handling a specific phase of candle production:
 
-Requirements
-************
+- `IDLE` - Waiting for user input
+- `INIT_CHECK` - System initialization and safety checks
+- `WAX_DISPENSE` - Dispensing wax into container
+- `HEATING` - Heating wax to target temperature
+- `SCENT_DISPENSE` - Adding scent to melted wax
+- `STIRRING` - Mixing wax and scent
+- `WICK_INSERT` - Positioning wick in container
+- `COOLING` - Allowing candle to solidify
+- `WASH_CYCLE` - Cleaning cycle between batches (if user holds button for more than five seconds)
+- `ESTOP` - Emergency stop state
+- `ENDSTATE` - Candle complete
 
-Your board must:
+### Threading Model
+- **Main state machine thread:** Coordinates overall candle-making process
+- **Display thread:** Handles UI updates and user input (non-blocking message queue communication)
+- **Motor control threads:** Manage individual stepper motor operations
+- **Temperature monitoring:** Tracks heating process
 
-#. Have an LED connected via a GPIO pin (these are called "User LEDs" on many of
-   Zephyr's :ref:`boards`).
-#. Have the LED configured using the ``led0`` devicetree alias.
+### Inter-Thread Communication
+Threads communicate using Zephyr message queues (`k_msgq`) with non-blocking reads to ensure responsive operation.
 
-Building and Running
-********************
+## Key Features
 
-Build and flash Blinky as follows, changing ``reel_board`` for your board:
+- Real-time state visualization on display
+- Emergency stop functionality
+- Automated wash cycle for repeated production
+- Thread-safe state transitions
+- SPI-based motor control with daisy-chained drivers
+- Temperature monitoring and control
 
-.. zephyr-app-commands::
-   :zephyr-app: samples/basic/blinky
-   :board: reel_board
-   :goals: build flash
-   :compact:
+## Building and Running
 
-After flashing, the LED starts to blink and messages with the current LED state
-are printed on the console. If a runtime error occurs, the sample exits without
-printing to the console.
+### Prerequisites
+- Zephyr SDK installed
+- STM32F446RE development board (Nucleo-F446RE)
+- West build tool
 
-Build errors
-************
+### Build Commands
+```bash
+west build -b nucleo_f446re -p -- -DDTC_OVERLAY_FILE="${PWD}/nucleo_f446re.overlay"
+west flash
+```
 
-You will see a build error at the source code line defining the ``struct
-gpio_dt_spec led`` variable if you try to build Blinky for an unsupported
-board.
+## Project Structure
+```
+candle-maker/
+├── src/
+│   ├── stateMachine.c      # Main state machine logic and coordination
+│   ├── display.c           # Display thread and UI handling
+│   ├── motors.c            # Stepper motor control and SPI communication
+│   ├── heating.c           # Heating control and temperature management
+│   ├── cooling.c           # Cooling process control
+│   ├── sensors.c           # Sensor monitoring and data acquisition
+│   └── servos.c            # Servo motor control
+│   ├── state_machine.h     # State definitions and shared interfaces
+│   ├── display.h           # Display function declarations
+│   ├── motors.h            # Motor control interfaces
+│   ├── heating.h           # Heating control interfaces
+│   ├── cooling.h           # Cooling control interfaces
+│   ├── sensors.h           # Sensor interfaces
+│   └── servos.h            # Servo control interfaces
+├── nucleo_f446re.overlay   # Device tree overlay
+└── prj.conf                # Zephyr project configuration
+```
 
-On GCC-based toolchains, the error looks like this:
+## Development Notes
 
-.. code-block:: none
+- The display thread uses `K_NO_WAIT` for message queue reads to prevent blocking
+- Each motor has independent control for precise coordination
+- State transitions are managed centrally to ensure proper sequencing
+- LVGL handles all display rendering with screen objects for each state
 
-   error: '__device_dts_ord_DT_N_ALIAS_led_P_gpios_IDX_0_PH_ORD' undeclared here (not in a function)
+## Future Improvements
 
-Adding board support
-********************
-
-To add support for your board, add something like this to your devicetree:
-
-.. code-block:: DTS
-
-   / {
-   	aliases {
-   		led0 = &myled0;
-   	};
-
-   	leds {
-   		compatible = "gpio-leds";
-   		myled0: led_0 {
-   			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
-                };
-   	};
-   };
-
-The above sets your board's ``led0`` alias to use pin 13 on GPIO controller
-``gpio0``. The pin flags :c:macro:`GPIO_ACTIVE_HIGH` mean the LED is on when
-the pin is set to its high state, and off when the pin is in its low state.
-
-Tips:
-
-- See :dtcompatible:`gpio-leds` for more information on defining GPIO-based LEDs
-  in devicetree.
-
-- If you're not sure what to do, check the devicetrees for supported boards which
-  use the same SoC as your target. See :ref:`get-devicetree-outputs` for details.
-
-- See :zephyr_file:`include/zephyr/dt-bindings/gpio/gpio.h` for the flags you can use
-  in devicetree.
-
-- If the LED is built in to your board hardware, the alias should be defined in
-  your :ref:`BOARD.dts file <devicetree-in-out-files>`. Otherwise, you can
-  define one in a :ref:`devicetree overlay <set-devicetree-overlays>`.
+- Add state tracking
+- better error recovery mechanisms
